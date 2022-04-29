@@ -31,7 +31,7 @@ class IBewegung(ABC):
 class Plattform():
     def __init__(self,bewegung: IBewegung):
         self.image = pygame.image.load(os.path.join(
-            game_folder, 'images/glasspaddle2.png')).convert_alpha()
+            game_folder, 'images\glasspaddle2.png')).convert_alpha()
         #Startposition
         self.paddle_rect = self.image.get_rect(center = (screen.get_rect().centerx,HEIGHT - 50 ))
         #Bewegungsgeschwindigkeit

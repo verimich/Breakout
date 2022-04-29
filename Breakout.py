@@ -33,13 +33,13 @@ class Spieler():
         self.image = pygame.image.load(os.path.join(
             game_folder, 'images\glasspaddle2.png')).convert_alpha()
         #Startposition
-        self.paddle_rect = self.image.get_rect(center = (screen.get_rect().centerx,HEIGHT - 50 ))
+        self.plattform_rect = self.image.get_rect(center = (screen.get_rect().centerx,HEIGHT - 50 ))
         #Bewegungsgeschwindigkeit
         self.speed = 10
-        #Paddle Steuerung
+        #Plattform Steuerung
         self.bewegung = bewegung
-        #Paddle Breite
-        self.paddle_width = self.image.get_width()
+        #Plattform Breite
+        self.plattform_width = self.image.get_width()
 
     #Steuerung 
     def steuerung(self):
@@ -50,16 +50,16 @@ class TastaturSteuerung_A_D():
     def __init__(self):
         pass
 
-    #Bewegung des Paddles
+    #Bewegung der Plattform
     def update(self,spieler: Spieler):
         keys = pygame.key.get_pressed()
 
-        rechterRand = WIDTH - spieler.paddle_width
+        rechterRand = WIDTH - spieler.plattform_width
         linkerRand = 0
-        if keys[pygame.K_d] and spieler.paddle_rect.x < rechterRand:
-            spieler.paddle_rect.x += spieler.speed 
-        elif keys[pygame.K_a] and spieler.paddle_rect.x > linkerRand:
-            spieler.paddle_rect.x -= spieler.speed
+        if keys[pygame.K_d] and spieler.plattform_rect.x < rechterRand:
+            spieler.plattform_rect.x += spieler.speed 
+        elif keys[pygame.K_a] and spieler.plattform_rect.x > linkerRand:
+            spieler.plattform_rect.x -= spieler.speed
 #init
 spieler = Spieler(TastaturSteuerung_A_D())
 
@@ -80,7 +80,7 @@ while running:
 
 
 
-    screen.blit(spieler.image, spieler.paddle_rect)      
+    screen.blit(spieler.image, spieler.plattform_rect)      
     #Display wird geupdatet    
     pygame.display.flip()
 

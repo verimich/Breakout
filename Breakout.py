@@ -28,7 +28,7 @@ class IBewegung(ABC):
     def update(self):
         pass
 
-class Plattform():
+class Spieler():
     def __init__(self,bewegung: IBewegung):
         self.image = pygame.image.load(os.path.join(
             game_folder, 'images\glasspaddle2.png')).convert_alpha()
@@ -51,17 +51,17 @@ class TastaturSteuerung_A_D():
         pass
 
     #Bewegung des Paddles
-    def update(self,plattform: Plattform):
+    def update(self,spieler: Spieler):
         keys = pygame.key.get_pressed()
 
-        rechterRand = WIDTH - plattform.paddle_width
+        rechterRand = WIDTH - spieler.paddle_width
         linkerRand = 0
-        if keys[pygame.K_d] and plattform.paddle_rect.x < rechterRand:
-            plattform.paddle_rect.x += plattform.speed 
-        elif keys[pygame.K_a] and plattform.paddle_rect.x > linkerRand:
-            plattform.paddle_rect.x -= plattform.speed
+        if keys[pygame.K_d] and spieler.paddle_rect.x < rechterRand:
+            spieler.paddle_rect.x += spieler.speed 
+        elif keys[pygame.K_a] and spieler.paddle_rect.x > linkerRand:
+            spieler.paddle_rect.x -= spieler.speed
 #init
-plattform = Plattform(TastaturSteuerung_A_D())
+spieler = Spieler(TastaturSteuerung_A_D())
 
 #Game Loop 
 running = True
@@ -71,7 +71,7 @@ while running:
     dt = clock.tick(FPS)
     # SChwarzer Hintergrund
     screen.fill(BLACK)
-    plattform.steuerung()
+    spieler.steuerung()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -80,7 +80,7 @@ while running:
 
 
 
-    screen.blit(plattform.image, plattform.paddle_rect)      
+    screen.blit(spieler.image, spieler.paddle_rect)      
     #Display wird geupdatet    
     pygame.display.flip()
 

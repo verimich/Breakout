@@ -69,7 +69,7 @@ while running:
 
     #berechnet Zeit zwischen zwei Frames und limitiert diesen
     dt = clock.tick(FPS)
-    # Blauer Hintergrund
+    # SChwarzer Hintergrund
     screen.fill(BLACK)
     plattform.steuerung()
 

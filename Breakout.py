@@ -1,4 +1,3 @@
-from tkinter import CENTER
 import pygame
 import os
 from abc import ABC, abstractmethod
@@ -10,7 +9,7 @@ clock = pygame.time.Clock()
 #Pygame Init
 TITLE = "Breakout"
 WIDTH = 1200
-HEIGHT = 720
+HEIGHT = 700
 FPS = 60
 
 WHITE = (255, 255, 255)
@@ -18,6 +17,9 @@ BLACK = (0,0,0)
 
 screen = pygame.display.set_mode((WIDTH,HEIGHT),pygame.SCALED)
 pygame.display.set_caption(TITLE)
+
+#Hier werden alle sprite Objekte gespeichert
+sprites = []
 
 # Dateisystem
 game_folder = os.path.dirname(__file__)
@@ -46,17 +48,41 @@ class Spieler():
     #Steuerung 
     def steuerung(self):
         self.bewegung.update(self)
-#Blöcke Klasse
-class Block():
+#
+class Block:
+    @abstractmethod
     def __init__(self,bx,by):
         self.bx = bx 
         self.by = by
+        self.image = ""
+        self.block_rect = ""
+#Block Klasse
+class Block1(Block):
+    def __init__(self,bx,by):
         self.image = pygame.image.load(os.path.join(
-            game_folder, 'images/brick1.jpg')).convert_alpha() 
+            game_folder, 'images/brick1_tile.jpg')).convert_alpha() 
         self.block_rect = self.image.get_rect(center = (bx,by))
 
-        print("x-Wert: ",self.block_rect.x)
-        print("y-Wert: ",self.block_rect.y)
+#Block Klasse
+class Block2(Block):
+    def __init__(self,bx,by):
+        self.image = pygame.image.load(os.path.join(
+            game_folder, 'images/brick2_tile.jpg')).convert_alpha() 
+        self.block_rect = self.image.get_rect(center = (bx,by))
+
+#Block Klasse
+class Block3(Block):
+    def __init__(self,bx,by):
+        self.image = pygame.image.load(os.path.join(
+            game_folder, 'images/brick3.png')).convert_alpha() 
+        self.block_rect = self.image.get_rect(center = (bx,by))
+
+#Block Klasse
+class Block4(Block):
+    def __init__(self,bx,by):
+        self.image = pygame.image.load(os.path.join(
+            game_folder, 'images/brick4.png')).convert_alpha() 
+        self.block_rect = self.image.get_rect(center = (bx,by))
 
 
 
@@ -75,18 +101,40 @@ class TastaturSteuerung_A_D():
             spieler.plattform_rect.x += spieler.speed 
         elif keys[pygame.K_a] and spieler.plattform_rect.x > linkerRand:
             spieler.plattform_rect.x -= spieler.speed
+
+#TileMap Klasse
+class Map:
+    def __init__(self,filename):
+        self.data = []
+        with open(filename, 'rt') as f:
+            for line in f:
+                #entfernt unnötige Zeichen
+                self.data.append(line.strip())
+    
+    def new(self):
+        self.map = Map(os.path.join(
+            game_folder, 'tile/map.txt'))
+        for row, tiles in enumerate(self.map.data):
+            print(type(tiles))
+            for col, tile in enumerate(tiles):
+                if tile == '1':
+                    sprites.append(Block1(col * 50 + 25,row * 50 + 25))
+                if tile == '2':
+                    sprites.append(Block2(col * 50 +25,row*50 +25))
+                if tile == '3':
+                    sprites.append(Block3(col * 50 +25,row*50 +25))
+                if tile == '4':
+                    sprites.append(Block4(col * 50 +25,row*50 +25))
+
+
+
 #init
 spieler = Spieler(TastaturSteuerung_A_D())
 
-
-sprites = []
-#Zwei Reihen der 50px Höhe Blöcke, 10px Abstand
-for r in range(25,145,60):
-    #Mitte der 100px Blöcke, 1200 Rand, 10px Abstand pro Block
-    for i in range(50,1200,110):
-        print("mittiger Startwert x: ",i)
-        print("mittiger Startwert y: ",r)
-        sprites.append(Block(i,r))
+#Blöcke werden erstellt
+map = Map(os.path.join(
+            game_folder, 'tile/map.txt'))
+map.new()
 
 #Game Loop 
 running = True

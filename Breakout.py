@@ -1,3 +1,4 @@
+from tkinter import CENTER
 import pygame
 import os
 from abc import ABC, abstractmethod
@@ -7,15 +8,15 @@ pygame.init()
 clock = pygame.time.Clock()
 
 #Pygame Init
-TITLE = "Pong"
-WIDTH = 1280
+TITLE = "Breakout"
+WIDTH = 1200
 HEIGHT = 720
 FPS = 60
 
 WHITE = (255, 255, 255)
 BLACK = (0,0,0)
 
-screen = pygame.display.set_mode([WIDTH,HEIGHT])
+screen = pygame.display.set_mode((WIDTH,HEIGHT),pygame.SCALED)
 pygame.display.set_caption(TITLE)
 
 # Dateisystem
@@ -30,9 +31,10 @@ class IBewegung(ABC):
 
 class Spieler():
     def __init__(self,bewegung: IBewegung):
+        #Bild laden
         self.image = pygame.image.load(os.path.join(
             game_folder, 'images\glasspaddle2.png')).convert_alpha()
-        #Startposition
+        #Bildgegröße bestimmen und Position
         self.plattform_rect = self.image.get_rect(center = (screen.get_rect().centerx,HEIGHT - 50 ))
         #Bewegungsgeschwindigkeit
         self.speed = 10
@@ -44,6 +46,19 @@ class Spieler():
     #Steuerung 
     def steuerung(self):
         self.bewegung.update(self)
+#Blöcke Klasse
+class Block():
+    def __init__(self,bx,by):
+        self.bx = bx 
+        self.by = by
+        self.image = pygame.image.load(os.path.join(
+            game_folder, 'images/brick1.jpg')).convert_alpha() 
+        self.block_rect = self.image.get_rect(center = (bx,by))
+
+        print("x-Wert: ",self.block_rect.x)
+        print("y-Wert: ",self.block_rect.y)
+
+
 
 #Steuerung durch Statatur    
 class TastaturSteuerung_A_D():
@@ -63,6 +78,16 @@ class TastaturSteuerung_A_D():
 #init
 spieler = Spieler(TastaturSteuerung_A_D())
 
+
+sprites = []
+#Zwei Reihen der 50px Höhe Blöcke, 10px Abstand
+for r in range(25,145,60):
+    #Mitte der 100px Blöcke, 1200 Rand, 10px Abstand pro Block
+    for i in range(50,1200,110):
+        print("mittiger Startwert x: ",i)
+        print("mittiger Startwert y: ",r)
+        sprites.append(Block(i,r))
+
 #Game Loop 
 running = True
 while running:
@@ -77,10 +102,13 @@ while running:
         if event.type == pygame.QUIT:
             running = False 
     
+    
 
-
-
+    #Malt die Plattform auf unsere Oberfläche mit den jeweiligen rect Werten Spieler
     screen.blit(spieler.image, spieler.plattform_rect)      
+
+    for sprite in sprites:
+        screen.blit(sprite.image,sprite.block_rect)
     #Display wird geupdatet    
     pygame.display.flip()
 

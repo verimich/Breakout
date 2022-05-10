@@ -182,12 +182,14 @@ class CollisionDetector:
         for sprite in sprites:
             #Ball trifft Block
             if (self.ball.ball_rect.y >= sprite.block_rect.y and self.ball.ball_rect.y <=  sprite.block_rect.y + sprite.image.get_height() ) and (self.ball.ball_rect.x + self.ball.image.get_width() >= sprite.block_rect.x and self.ball.ball_rect.x <= sprite.block_rect.x + sprite.image.get_width()):
-                #Block wird von unten auf der rechten Seite getroffen, während er von rechts kommt
-                if((self.ball.sx > 0) and (self.ball.ball_rect.x - self.ball.image.get_width() <= sprite.block_rect.x + sprite.image.get_width()/2) ):
+                #Block wird von unten auf der links Seite getroffen, während er von rechts kommt
+                if((self.ball.sx > 0) and (self.ball.ball_rect.x + self.ball.image.get_width() <= sprite.block_rect.x + sprite.image.get_width()/2) ):
+                    print("self.ball.ball_rect.x",self.ball.ball_rect.x + self.ball.image.get_width())
+                    print("sprite.block_rect.x",sprite.block_rect.x + sprite.image.get_width()/2)
                     self.ball.sx *= -1
 
-                if((self.ball.sx > 0) and (self.ball.ball_rect.x - self.ball.image.get_width() <= sprite.block_rect.x + sprite.image.get_width()/2) ):
-                    self.ball.sx *= -1
+                #if((self.ball.sx > 0) and (self.ball.ball_rect.x - self.ball.image.get_width() <= sprite.block_rect.x + sprite.image.get_width()/2) ):
+                #    self.ball.sx *= -1
                 self.ball.sy *= -1
                 sprites.remove(sprite)
         

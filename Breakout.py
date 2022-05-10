@@ -48,6 +48,42 @@ class Spieler():
     #Steuerung 
     def steuerung(self):
         self.bewegung.update(self)
+
+class Ball():
+    def __init__(self):
+        self.image = pygame.image.load(os.path.join(
+            game_folder, 'images\meinball.png')).convert_alpha()
+        self.bx = screen.get_rect().centerx
+        self.by = HEIGHT - 80 
+        self.ball_rect = self.image.get_rect(center = (self.bx,self.by))
+
+        self.sx = 2
+        self.sy = 2
+
+    def update(self):
+        self.ball_rect.x += self.sx
+        self.ball_rect.y += self.sy
+
+        linkerRand = 0
+        rechterRand = WIDTH - self.image.get_width()
+
+        if(self.ball_rect.y >= HEIGHT - self.image.get_height() or self.ball_rect.y <= 0):
+            self.sy *= -1
+        
+        if(self.ball_rect.x >= rechterRand or self.ball_rect.x <= linkerRand):
+            self.sx *= -1
+
+    def __del__(self):
+        pass
+        
+
+
+
+        
+
+        
+    
+
 #
 class Block:
     @abstractmethod
@@ -115,7 +151,6 @@ class Map:
         self.map = Map(os.path.join(
             game_folder, 'tile/map.txt'))
         for row, tiles in enumerate(self.map.data):
-            print(type(tiles))
             for col, tile in enumerate(tiles):
                 if tile == '1':
                     sprites.append(Block1(col * 50 + 25,row * 50 + 25))
@@ -125,11 +160,50 @@ class Map:
                     sprites.append(Block3(col * 50 +25,row*50 +25))
                 if tile == '4':
                     sprites.append(Block4(col * 50 +25,row*50 +25))
+    
+class CollisionDetector:
+    def __init__(self,ball: Ball, spieler: Spieler):
+        self.ball = ball 
+        self.spieler = spieler 
+
+    def collision(self):                                                                                                    #Linke Ecke                                                                #Rechte Ecke
+        if((self.ball.ball_rect.y + self.ball.image.get_height() == self.spieler.plattform_rect.y) and (self.ball.ball_rect.x + self.ball.image.get_width() >= self.spieler.plattform_rect.x and  self.ball.ball_rect.x   <= self.spieler.plattform_rect.x + self.spieler.image.get_width() )):
+                #linke Hälfte
+            if(self.ball.sx > 0 and self.ball.ball_rect.x <= self.spieler.plattform_rect.x + self.spieler.image.get_width()/2 - self.ball.image.get_width() ):
+                self.ball.sy *= -1
+                self.ball.sx *= -1
+                 #rechte Hälfte
+            elif(self.ball.sx < 0 and self.ball.ball_rect.x >= self.spieler.plattform_rect.x + self.spieler.image.get_width()/2 ):
+                self.ball.sy *= -1
+                self.ball.sx *= -1
+            else:
+                self.ball.sy *= -1
+
+        for sprite in sprites:
+            #Ball trifft Block
+            if (self.ball.ball_rect.y >= sprite.block_rect.y and self.ball.ball_rect.y <=  sprite.block_rect.y + sprite.image.get_height() ) and (self.ball.ball_rect.x + self.ball.image.get_width() >= sprite.block_rect.x and self.ball.ball_rect.x <= sprite.block_rect.x + sprite.image.get_width()):
+                #Block wird von unten auf der rechten Seite getroffen, während er von rechts kommt
+                if((self.ball.sx > 0) and (self.ball.ball_rect.x - self.ball.image.get_width() <= sprite.block_rect.x + sprite.image.get_width()/2) ):
+                    self.ball.sx *= -1
+
+                if((self.ball.sx > 0) and (self.ball.ball_rect.x - self.ball.image.get_width() <= sprite.block_rect.x + sprite.image.get_width()/2) ):
+                    self.ball.sx *= -1
+                self.ball.sy *= -1
+                sprites.remove(sprite)
+        
+
+
 
 
 
 #init
 spieler = Spieler(TastaturSteuerung_A_D())
+
+#Ball
+ball = Ball()
+
+#Collision
+collision = CollisionDetector(ball,spieler)
 
 #Blöcke werden erstellt
 map = Map(os.path.join(
@@ -142,9 +216,18 @@ while running:
 
     #berechnet Zeit zwischen zwei Frames und limitiert diesen
     dt = clock.tick(FPS)
-    # SChwarzer Hintergrund
+    # Shhwarzer Hintergrund
     screen.fill(BLACK)
+
+    #Spieler Bewegung
     spieler.steuerung()
+
+    #Ball Bewegung
+    ball.update()
+
+    #collision
+    collision.collision()
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -153,7 +236,9 @@ while running:
     
 
     #Malt die Plattform auf unsere Oberfläche mit den jeweiligen rect Werten Spieler
-    screen.blit(spieler.image, spieler.plattform_rect)      
+    screen.blit(spieler.image, spieler.plattform_rect)    
+
+    screen.blit(ball.image, ball.ball_rect)  
 
     for sprite in sprites:
         screen.blit(sprite.image,sprite.block_rect)

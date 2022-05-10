@@ -187,9 +187,10 @@ class CollisionDetector:
                     print("self.ball.ball_rect.x",self.ball.ball_rect.x + self.ball.image.get_width())
                     print("sprite.block_rect.x",sprite.block_rect.x + sprite.image.get_width()/2)
                     self.ball.sx *= -1
+                #Block wird von unten auf der rechten Seite getroffen, während er von links kommt
+                if((self.ball.sx < 0) and (self.ball.ball_rect.x >= sprite.block_rect.x + sprite.image.get_width()/2) ):
+                    self.ball.sx *= -1
 
-                #if((self.ball.sx > 0) and (self.ball.ball_rect.x - self.ball.image.get_width() <= sprite.block_rect.x + sprite.image.get_width()/2) ):
-                #    self.ball.sx *= -1
                 self.ball.sy *= -1
                 sprites.remove(sprite)
         

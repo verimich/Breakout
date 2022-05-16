@@ -35,9 +35,9 @@ class Spieler():
     def __init__(self,bewegung: IBewegung):
         #Bild laden
         self.image = pygame.image.load(os.path.join(
-            game_folder, 'images\glasspaddle2.png')).convert_alpha()
-        #Bildgegröße bestimmen und Position
-        self.plattform_rect = self.image.get_rect(center = (screen.get_rect().centerx,HEIGHT - 50 ))
+            game_folder, 'images\glasspaddle1.png')).convert_alpha()
+        #Bildgegröße bestimmen und Position, start x Mitte, y 650
+        self.plattform_rect = self.image.get_rect(center = (screen.get_rect().centerx,HEIGHT - 45 ))
         #Bewegungsgeschwindigkeit
         self.speed = 10
         #Plattform Steuerung
@@ -54,11 +54,12 @@ class Ball():
         self.image = pygame.image.load(os.path.join(
             game_folder, 'images\meinball.png')).convert_alpha()
         self.bx = screen.get_rect().centerx
-        self.by = HEIGHT - 80 
+        self.by = HEIGHT - 90 
+        print("spawn point",self.by)
         self.ball_rect = self.image.get_rect(center = (self.bx,self.by))
 
-        self.sx = 2
-        self.sy = 2
+        self.sx = 6
+        self.sy = 6
 
     def update(self):
         self.ball_rect.x += self.sx
@@ -166,7 +167,9 @@ class CollisionDetector:
         self.ball = ball 
         self.spieler = spieler 
 
+
     def collision(self):                                                                                                    #Linke Ecke                                                                #Rechte Ecke
+        #Spieler trifft den Ball
         if((self.ball.ball_rect.y + self.ball.image.get_height() == self.spieler.plattform_rect.y) and (self.ball.ball_rect.x + self.ball.image.get_width() >= self.spieler.plattform_rect.x and  self.ball.ball_rect.x   <= self.spieler.plattform_rect.x + self.spieler.image.get_width() )):
                 #linke Hälfte
             if(self.ball.sx > 0 and self.ball.ball_rect.x <= self.spieler.plattform_rect.x + self.spieler.image.get_width()/2 - self.ball.image.get_width() ):
@@ -180,8 +183,21 @@ class CollisionDetector:
                 self.ball.sy *= -1
 
         for sprite in sprites:
-            #Ball trifft Block
-            if (self.ball.ball_rect.y >= sprite.block_rect.y and self.ball.ball_rect.y <=  sprite.block_rect.y + sprite.image.get_height() ) and (self.ball.ball_rect.x + self.ball.image.get_width() >= sprite.block_rect.x and self.ball.ball_rect.x <= sprite.block_rect.x + sprite.image.get_width()):
+            #Ball trifft Block von unten
+            if self.ball.sy <= 0 and (self.ball.ball_rect.y >= sprite.block_rect.y and self.ball.ball_rect.y <=  sprite.block_rect.y + sprite.image.get_height() ) and (self.ball.ball_rect.x + self.ball.image.get_width() >= sprite.block_rect.x and self.ball.ball_rect.x <= sprite.block_rect.x + sprite.image.get_width()):
+                #Block wird von unten auf der links Seite getroffen, während er von rechts kommt
+                if((self.ball.sx > 0) and (self.ball.ball_rect.x + self.ball.image.get_width() <= sprite.block_rect.x + sprite.image.get_width()/2) ):
+                    print("self.ball.ball_rect.x",self.ball.ball_rect.x + self.ball.image.get_width())
+                    print("sprite.block_rect.x",sprite.block_rect.x + sprite.image.get_width()/2)
+                    self.ball.sx *= -1
+                #Block wird von unten auf der rechten Seite getroffen, während er von links kommt
+                if((self.ball.sx < 0) and (self.ball.ball_rect.x >= sprite.block_rect.x + sprite.image.get_width()/2) ):
+                    self.ball.sx *= -1
+                self.ball.sy *= -1
+                sprites.remove(sprite)
+            #Ball trifft Block von oben
+            elif self.ball.sy > 0 and (self.ball.ball_rect.y + self.ball.image.get_height() >= sprite.block_rect.y and self.ball.ball_rect.y <=  sprite.block_rect.y + sprite.image.get_height() ) and (self.ball.ball_rect.x + self.ball.image.get_width() >= sprite.block_rect.x and self.ball.ball_rect.x <= sprite.block_rect.x + sprite.image.get_width()):  
+                print("von oben")
                 #Block wird von unten auf der links Seite getroffen, während er von rechts kommt
                 if((self.ball.sx > 0) and (self.ball.ball_rect.x + self.ball.image.get_width() <= sprite.block_rect.x + sprite.image.get_width()/2) ):
                     print("self.ball.ball_rect.x",self.ball.ball_rect.x + self.ball.image.get_width())
@@ -194,11 +210,6 @@ class CollisionDetector:
                 self.ball.sy *= -1
                 sprites.remove(sprite)
         
-
-
-
-
-
 #init
 spieler = Spieler(TastaturSteuerung_A_D())
 
@@ -235,8 +246,7 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False 
-    
-    
+
 
     #Malt die Plattform auf unsere Oberfläche mit den jeweiligen rect Werten Spieler
     screen.blit(spieler.image, spieler.plattform_rect)    

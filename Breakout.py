@@ -26,13 +26,13 @@ game_folder = os.path.dirname(__file__)
 
 
 #abstrakte Klasse für die Bewegung
-class IBewegung(ABC):
+class Tastatur(ABC):
     @abstractmethod
     def update(self):
         pass
 
 class Spieler():
-    def __init__(self,bewegung: IBewegung):
+    def __init__(self,bewegung: Tastatur):
         #Bild laden
         self.image = pygame.image.load(os.path.join(
             game_folder, 'images\glasspaddle1.png')).convert_alpha()
@@ -52,14 +52,14 @@ class Spieler():
 class Ball():
     def __init__(self):
         self.image = pygame.image.load(os.path.join(
-            game_folder, 'images\meinball.png')).convert_alpha()
+            game_folder, 'images\meinball3.png')).convert_alpha()
         self.bx = screen.get_rect().centerx
-        self.by = HEIGHT - 90 
+        self.by = HEIGHT - 70 
         print("spawn point",self.by)
         self.ball_rect = self.image.get_rect(center = (self.bx,self.by))
 
-        self.sx = 6
-        self.sy = 6
+        self.sx = 4
+        self.sy = 4
 
     def update(self):
         self.ball_rect.x += self.sx
@@ -68,11 +68,19 @@ class Ball():
         linkerRand = 0
         rechterRand = WIDTH - self.image.get_width()
 
-        if(self.ball_rect.y >= HEIGHT - self.image.get_height() or self.ball_rect.y <= 0):
+        if(self.ball_rect.y >= HEIGHT - self.image.get_height() or self.ball_rect.y <= 0): 
             self.sy *= -1
         
-        if(self.ball_rect.x >= rechterRand or self.ball_rect.x <= linkerRand):
+        #Bugfixing linker, rechter Rand
+        #Nach unten fliegend rechter Rand
+        if(self.ball_rect.x >= rechterRand  and self.sx > 0):
             self.sx *= -1
+        
+        #Nach unten fliegend linker Rand
+        if( self.ball_rect.x <= linkerRand  and self.sx < 0):
+            self.sx *= -1
+        
+
 
     def __del__(self):
         pass
@@ -124,7 +132,7 @@ class Block4(Block):
 
 
 #Steuerung durch Statatur    
-class TastaturSteuerung_A_D():
+class TastaturSteuerung_A_D(Tastatur):
     def __init__(self):
         pass
 
@@ -170,17 +178,43 @@ class CollisionDetector:
 
     def collision(self):                                                                                                    #Linke Ecke                                                                #Rechte Ecke
         #Spieler trifft den Ball
-        if((self.ball.ball_rect.y + self.ball.image.get_height() == self.spieler.plattform_rect.y) and (self.ball.ball_rect.x + self.ball.image.get_width() >= self.spieler.plattform_rect.x and  self.ball.ball_rect.x   <= self.spieler.plattform_rect.x + self.spieler.image.get_width() )):
-                #linke Hälfte
+        if((self.ball.ball_rect.y + self.ball.image.get_height() >= self.spieler.plattform_rect.y and self.ball.ball_rect.y + self.ball.image.get_height() <= self.spieler.plattform_rect.y + self.spieler.image.get_height()) and (self.ball.ball_rect.x + self.ball.image.get_width() >= self.spieler.plattform_rect.x and  self.ball.ball_rect.x   <= self.spieler.plattform_rect.x + self.spieler.image.get_width() ) and self.ball.sy >= 0):
+                #linke Hälfte von links
             if(self.ball.sx > 0 and self.ball.ball_rect.x <= self.spieler.plattform_rect.x + self.spieler.image.get_width()/2 - self.ball.image.get_width() ):
                 self.ball.sy *= -1
                 self.ball.sx *= -1
-                 #rechte Hälfte
+                 #rechte Hälfte von rechts
             elif(self.ball.sx < 0 and self.ball.ball_rect.x >= self.spieler.plattform_rect.x + self.spieler.image.get_width()/2 ):
                 self.ball.sy *= -1
                 self.ball.sx *= -1
             else:
                 self.ball.sy *= -1
+            
+            #Wenn der Ball ganz links außen auf den Spieler trifft ändert sich der Flugverlauf (sx wird zu 6 statt 3)
+            if self.ball.ball_rect.x + self.ball.image.get_width() >= self.spieler.plattform_rect.x and self.ball.ball_rect.x <= self.spieler.plattform_rect.x + self.spieler.image.get_width()/10:
+                self.ball.sy = -2
+                #Bleibt negativ oder positiv
+                if self.ball.sx <= 0:
+                    self.ball.sx = -6
+                else:
+                    self.ball.sx = 6
+            #Wenn der Ball ganz rechts außen auf den Spieler trifft ändert sich der Flugverlauf(sx wird zu 6 statt 3)
+            elif self.ball.ball_rect.x + self.ball.image.get_width() >= self.spieler.plattform_rect.x + self.spieler.image.get_width() - self.spieler.image.get_width()/10:
+                self.ball.sy = -2
+                #Bleibt negativ oder positiv
+                if self.ball.sx <= 0:
+                    self.ball.sx = -6
+                else:
+                    self.ball.sx = 6
+            #Falls nicht der Rand des Spielers getroffen wurde bleibt sx bei 3
+            else:
+                #Bleibt negativ oder positiv
+                self.ball.sy = -4
+                if self.ball.sx <= 0:
+                    self.ball.sx = -4
+                else:
+                    self.ball.sx = 4
+
 
         for sprite in sprites:
             #Ball trifft Block von unten
@@ -210,53 +244,129 @@ class CollisionDetector:
                 self.ball.sy *= -1
                 sprites.remove(sprite)
         
-#init
-spieler = Spieler(TastaturSteuerung_A_D())
-
-#Ball
-ball = Ball()
-
-#Collision
-collision = CollisionDetector(ball,spieler)
-
-#Blöcke werden erstellt
-map = Map(os.path.join(
-            game_folder, 'tile/map.txt'))
-map.new()
-
-#Game Loop 
-running = True
-while running:
-
-    #berechnet Zeit zwischen zwei Frames und limitiert diesen
-    dt = clock.tick(FPS)
-    # Shhwarzer Hintergrund
-    screen.fill(BLACK)
-
-    #Spieler Bewegung
-    spieler.steuerung()
-
-    #Ball Bewegung
-    ball.update()
-
-    #collision
-    collision.collision()
 
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False 
 
 
-    #Malt die Plattform auf unsere Oberfläche mit den jeweiligen rect Werten Spieler
-    screen.blit(spieler.image, spieler.plattform_rect)    
 
-    screen.blit(ball.image, ball.ball_rect)  
 
-    for sprite in sprites:
-        screen.blit(sprite.image,sprite.block_rect)
-    #Display wird geupdatet    
-    pygame.display.flip()
+def game_loop():
 
-# Game Exit 
-pygame.quit()
+    #init
+    spieler = Spieler(TastaturSteuerung_A_D())
+
+    #Ball
+    ball = Ball()
+
+    #Collision
+    collision = CollisionDetector(ball,spieler)
+
+    #Blöcke werden erstellt
+    map = Map(os.path.join(
+                game_folder, 'tile/map.txt'))
+    map.new()
+    #Game Loop 
+    print("loop game started")
+    running = True
+    while running:
+
+        #berechnet Zeit zwischen zwei Frames und limitiert diesen
+        dt = clock.tick(FPS)
+        # Shhwarzer Hintergrund
+        screen.fill(BLACK)
+
+        #Spieler Bewegung
+        spieler.steuerung()
+
+        #Ball Bewegung
+        ball.update()
+
+        #collision
+        collision.collision()
+
+
+        #Malt die Plattform auf unsere Oberfläche mit den jeweiligen rect Werten Spieler
+        screen.blit(spieler.image, spieler.plattform_rect)    
+
+        screen.blit(ball.image, ball.ball_rect)  
+
+        for sprite in sprites:
+            screen.blit(sprite.image,sprite.block_rect)
+        #Display wird geupdatet    
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False 
+                pygame.quit()
+
+    # Game Exit 
+    pygame.quit()
+
+
+class button():
+    def __init__(self,x,y):
+        self.x = x 
+        self.y = y
+        self.button_rect = ""
+        self.image = ""
+        self.create()
+
+    def create(self):
+        
+        self.image = pygame.image.load(os.path.join(
+            game_folder, 'images/start.jpg')).convert_alpha() 
+        self.button_rect = self.image.get_rect(center = (self.x,self.y))
+
+class buttonEnding:
+    def __init__(self,x,y):
+        self.x = x 
+        self.y = y
+        self.button_rect = ""
+        self.image = ""
+        self.create()
+
+    def create(self):
+        
+        self.image = pygame.image.load(os.path.join(
+            game_folder, 'images/end.jpg')).convert_alpha() 
+        self.button_rect = self.image.get_rect(center = (self.x,self.y))
+
+
+
+class menu():
+    def __init__(self):
+        self.start()
+
+    def start(self):
+        run = True
+        buttonStart = button(WIDTH/2,100)
+        buttonEnd = buttonEnding(WIDTH/2,400)
+
+        while run:
+
+            screen.fill(WHITE)
+
+            screen.blit(buttonStart.image, buttonStart.button_rect)
+            screen.blit(buttonEnd.image, buttonEnd.button_rect)
+            pygame.display.flip()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False 
+                    pygame.quit()
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    position_x,position_y = pygame.mouse.get_pos()
+                    if buttonStart.button_rect.collidepoint(position_x,position_y):
+                        print('clicked on image')
+                        run = False
+                        game_loop()
+                    
+                    elif buttonEnd.button_rect.collidepoint(position_x,position_y):
+                        run = False
+                        pygame.quit()
+                
+
+
+menu1 = menu()

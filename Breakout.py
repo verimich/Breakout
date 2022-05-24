@@ -66,6 +66,7 @@ class Ball():
         self.ball_rect.y += self.sy
 
         linkerRand = 0
+        
         rechterRand = WIDTH - self.image.get_width()
 
         if(self.ball_rect.y >= HEIGHT - self.image.get_height() or self.ball_rect.y <= 0): 
@@ -163,15 +164,16 @@ class TastaturSteuerung_Arrow_Keys(Tastatur):
 #TileMap Klasse
 class Map:
     def __init__(self,filename):
+        self.filename = filename
         self.data = []
-        with open(filename, 'rt') as f:
+        with open(self.filename, 'rt') as f:
             for line in f:
                 #entfernt unnötige Zeichen
                 self.data.append(line.strip())
     
     def new(self):
         self.map = Map(os.path.join(
-            game_folder, 'tile/map.txt'))
+            game_folder, self.filename))
         for row, tiles in enumerate(self.map.data):
             for col, tile in enumerate(tiles):
                 if tile == '1':
@@ -182,6 +184,8 @@ class Map:
                     sprites.append(Block3(col * 50 +25,row*50 +25))
                 if tile == '4':
                     sprites.append(Block4(col * 50 +25,row*50 +25))
+
+
     
 class CollisionDetector:
     def __init__(self,ball: Ball, spieler: Spieler):
@@ -274,9 +278,13 @@ def game_loop():
     #Collision
     collision = CollisionDetector(ball,spieler)
 
+    #Map Liste
+    map_liste = ['tile/map.txt','tile/map1.txt','tile/map2.txt']
+
     #Blöcke werden erstellt
+    map_counter = 0
     map = Map(os.path.join(
-                game_folder, 'tile/map.txt'))
+                game_folder, map_liste[map_counter]))
     map.new()
     #Game Loop 
     print("loop game started")
@@ -312,9 +320,22 @@ def game_loop():
             if event.type == pygame.QUIT:
                 running = False 
                 pygame.quit()
+        
+        #Nächste Level werden geladen
+        if not sprites:
+            map_counter += 1
+            if map_counter < len(map_liste):
+                map = Map(os.path.join(
+                game_folder,map_liste[map_counter] ))
+                map.new()
+                
+            else:
+                pygame.quit()
+                running = False
 
-    # Game Exit 
-    pygame.quit()
+            
+            
+
 
 
 class button():

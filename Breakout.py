@@ -147,6 +147,19 @@ class TastaturSteuerung_A_D(Tastatur):
         elif keys[pygame.K_a] and spieler.plattform_rect.x > linkerRand:
             spieler.plattform_rect.x -= spieler.speed
 
+#Steuerung durch Tastatur via Pfeiltasten
+class TastaturSteuerung_Arrow_Keys(Tastatur):
+    def update(self,spieler: Spieler):
+        
+        keys = pygame.key.get_pressed()
+        rechterRand = WIDTH - spieler.plattform_width
+        linkerRand = 0
+        if keys[pygame.K_LEFT] and spieler.plattform_rect.x <rechterRand:
+            spieler.plattform_rect.x += spieler.speed
+        elif keys[pygame.K_RIGHT] and spieler.plattform_rect.x > linkerRand:
+            spieler.plattform_rect.x -= spieler.speed
+
+
 #TileMap Klasse
 class Map:
     def __init__(self,filename):

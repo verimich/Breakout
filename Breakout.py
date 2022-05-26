@@ -18,8 +18,12 @@ BLACK = (0,0,0)
 screen = pygame.display.set_mode((WIDTH,HEIGHT),pygame.SCALED)
 pygame.display.set_caption(TITLE)
 
-#Hier werden alle sprite Objekte gespeichert
+#Hier werden alle sprite Objekte Blöcke gespeichert
 sprites = []
+
+#Hier werden alle extra Object gespeichert (Münzen zum Beispiel)
+falling_sprites = []
+
 
 # Dateisystem
 game_folder = os.path.dirname(__file__)
@@ -94,7 +98,27 @@ class Ball():
         
     
 
-#
+class Muenze:
+    def __init__(self,x,y):
+        self.x = x 
+        self.y = y 
+        self.ys = 4
+        self.image = ""
+        self.block_rect = ""
+        self.create()
+
+    def create(self):
+        self.image = pygame.image.load(os.path.join(
+        game_folder, 'images/coin.png')).convert_alpha() 
+        self.y += self.image.get_height()/2
+        self.muenze_rect = self.image.get_rect(center = (self.x,self.y))
+        
+    def update(self):
+        self.muenze_rect.y += self.ys
+        
+
+
+
 class Block:
     @abstractmethod
     def __init__(self,bx,by):
@@ -102,12 +126,14 @@ class Block:
         self.by = by
         self.image = ""
         self.block_rect = ""
+        self.id = 0
 #Block Klasse
 class Block1(Block):
     def __init__(self,bx,by):
         self.image = pygame.image.load(os.path.join(
             game_folder, 'images/brick1_tile.jpg')).convert_alpha() 
         self.block_rect = self.image.get_rect(center = (bx,by))
+        self.id = 1
 
 #Block Klasse
 class Block2(Block):
@@ -115,6 +141,7 @@ class Block2(Block):
         self.image = pygame.image.load(os.path.join(
             game_folder, 'images/brick2_tile.jpg')).convert_alpha() 
         self.block_rect = self.image.get_rect(center = (bx,by))
+        self.id = 2
 
 #Block Klasse
 class Block3(Block):
@@ -122,6 +149,7 @@ class Block3(Block):
         self.image = pygame.image.load(os.path.join(
             game_folder, 'images/brick3.png')).convert_alpha() 
         self.block_rect = self.image.get_rect(center = (bx,by))
+        self.id = 3
 
 #Block Klasse
 class Block4(Block):
@@ -129,6 +157,10 @@ class Block4(Block):
         self.image = pygame.image.load(os.path.join(
             game_folder, 'images/brick4.png')).convert_alpha() 
         self.block_rect = self.image.get_rect(center = (bx,by))
+        self.id = 4
+    
+    def hit(self):
+        falling_sprites.append(Muenze(self.block_rect.x + self.image.get_width()/2,self.block_rect.y + self.image.get_height()))
 
 
 
@@ -245,6 +277,9 @@ class CollisionDetector:
                 if((self.ball.sx < 0) and (self.ball.ball_rect.x >= sprite.block_rect.x + sprite.image.get_width()/2) ):
                     self.ball.sx *= -1
                 self.ball.sy *= -1
+                #Block4 mit der Muenze wird getroffen
+                if(sprite.id == 4 ):
+                    sprite.hit()
                 sprites.remove(sprite)
             #Ball trifft Block von oben
             elif self.ball.sy > 0 and (self.ball.ball_rect.y + self.ball.image.get_height() >= sprite.block_rect.y and self.ball.ball_rect.y <=  sprite.block_rect.y + sprite.image.get_height() ) and (self.ball.ball_rect.x + self.ball.image.get_width() >= sprite.block_rect.x and self.ball.ball_rect.x <= sprite.block_rect.x + sprite.image.get_width()):  
@@ -259,7 +294,20 @@ class CollisionDetector:
                     self.ball.sx *= -1
 
                 self.ball.sy *= -1
+                #Block4 mit der Muenze wird getroffen
+                if(sprite.id == 4 ):
+                    sprite.hit()
                 sprites.remove(sprite)
+
+            #Fallende Objekte Kollision mit Spieler oder unterem Rand
+            for sprite in falling_sprites:
+                muenze_y = sprite.muenze_rect.y + sprite.image.get_height()
+                if muenze_y >= HEIGHT:
+                    falling_sprites.remove(sprite)
+                    print("HIT GROUND")
+                elif muenze_y >= self.spieler.plattform_rect.y and muenze_y <= self.spieler.plattform_rect.y + self.spieler.image.get_height() and sprite.muenze_rect.x + sprite.image.get_width() >= self.spieler.plattform_rect.x and sprite.muenze_rect.x <= self.spieler.plattform_rect.x + self.spieler.image.get_width():
+                    falling_sprites.remove(sprite)
+                    print("SCORE+1")
         
 
 
@@ -311,8 +359,15 @@ def game_loop():
 
         screen.blit(ball.image, ball.ball_rect)  
 
+        #Blöcke werden gemalt
         for sprite in sprites:
             screen.blit(sprite.image,sprite.block_rect)
+
+        #Fallende Objekte werden gemalt
+        for sprite in falling_sprites:
+            sprite.update()
+            screen.blit(sprite.image,sprite.muenze_rect)
+
         #Display wird geupdatet    
         pygame.display.flip()
 
@@ -330,52 +385,72 @@ def game_loop():
                 map.new()
                 
             else:
-                pygame.quit()
                 running = False
+                #Am Ende werden alle fallenden Objekte gelöscht.!!!
+                falling_sprites.clear()
+                menuEnd.start()
 
             
             
 
 
 
-class button():
-    def __init__(self,x,y):
+class button:
+    def __init__(self,x,y,pfad):
         self.x = x 
         self.y = y
         self.button_rect = ""
         self.image = ""
+        self.pfad = pfad
         self.create()
 
     def create(self):
         
         self.image = pygame.image.load(os.path.join(
-            game_folder, 'images/start.jpg')).convert_alpha() 
-        self.button_rect = self.image.get_rect(center = (self.x,self.y))
-
-class buttonEnding:
-    def __init__(self,x,y):
-        self.x = x 
-        self.y = y
-        self.button_rect = ""
-        self.image = ""
-        self.create()
-
-    def create(self):
-        
-        self.image = pygame.image.load(os.path.join(
-            game_folder, 'images/end.jpg')).convert_alpha() 
+            game_folder, self.pfad)).convert_alpha() 
         self.button_rect = self.image.get_rect(center = (self.x,self.y))
 
 
-
-class menu():
+class menu_start:
     def __init__(self):
-        self.start()
+        pass
 
     def start(self):
         run = True
-        buttonStart = button(WIDTH/2,100)
-        buttonEnd = buttonEnding(WIDTH/2,400)
+        buttonStart = button(WIDTH/2,100,"images/start.jpg")
+        buttonEnd = button(WIDTH/2,400,"images/end.jpg")
+
+        while run:
+
+            screen.fill(WHITE)
+
+            screen.blit(buttonStart.image, buttonStart.button_rect)
+            screen.blit(buttonEnd.image, buttonEnd.button_rect)
+            pygame.display.flip()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False 
+                    pygame.quit()
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    position_x,position_y = pygame.mouse.get_pos()
+                    if buttonStart.button_rect.collidepoint(position_x,position_y):
+                        print('clicked on image')
+                        run = False
+                        game_loop()
+                    
+                    elif buttonEnd.button_rect.collidepoint(position_x,position_y):
+                        run = False
+                        pygame.quit()
+class menu_end:
+    def __init__(self):
+        pass
+
+    def start(self):
+        run = True
+        buttonStart = button(WIDTH/2,100,"images/nochmal.jpg")
+        buttonEnd = button(WIDTH/2,400,"images/end.jpg")
 
         while run:
 
@@ -403,5 +478,8 @@ class menu():
                 
 
 
-menu1 = menu()
+menuStart = menu_start()
+menuEnd = menu_end()
+menuStart.start()
+
 #test

@@ -175,6 +175,8 @@ class Block3(Block):
             game_folder, 'images/brick3.png')).convert_alpha() 
         self.block_rect = self.image.get_rect(center = (bx,by))
         self.id = 3
+        
+    
 
 #Block Klasse
 class Block4(Block):
@@ -303,7 +305,11 @@ class CollisionDetector:
                     self.ball.sx = 4
 
 
+
         for sprite in sprites:
+            #Destruction fuer Block3
+            destruction = False
+        
             #Ball trifft Block von unten
             if self.ball.sy <= 0 and (self.ball.ball_rect.y >= sprite.block_rect.y and self.ball.ball_rect.y <=  sprite.block_rect.y + sprite.image.get_height() ) and (self.ball.ball_rect.x + self.ball.image.get_width() >= sprite.block_rect.x and self.ball.ball_rect.x <= sprite.block_rect.x + sprite.image.get_width()):
                 self.my_score.update()
@@ -317,10 +323,16 @@ class CollisionDetector:
                 if((self.ball.sx < 0) and (self.ball.ball_rect.x >= sprite.block_rect.x + sprite.image.get_width()/2) ):
                     self.ball.sx *= -1
                 self.ball.sy *= -1
+                
                 #Block4 mit der Muenze wird getroffen
                 if(sprite.id == 4 ):
                     sprite.hit()
                 sprites.remove(sprite)
+                #Block3 wird Block1
+                if(sprite.id == 3 ):  
+                    destruction = True
+                
+               
             #Ball trifft Block von oben
             elif self.ball.sy > 0 and (self.ball.ball_rect.y + self.ball.image.get_height() >= sprite.block_rect.y and self.ball.ball_rect.y <=  sprite.block_rect.y + sprite.image.get_height() ) and (self.ball.ball_rect.x + self.ball.image.get_width() >= sprite.block_rect.x and self.ball.ball_rect.x <= sprite.block_rect.x + sprite.image.get_width()):  
                 self.my_score.update()
@@ -340,6 +352,11 @@ class CollisionDetector:
                 if(sprite.id == 4 ):
                     sprite.hit()
                 sprites.remove(sprite)
+                if(sprite.id == 3 ):  
+                    destruction = True
+            if destruction:  
+                #Block3 wird Block 1
+                sprites.append(Block1(sprite.block_rect.x + sprite.image.get_width()/2, sprite.block_rect.y + sprite.image.get_height()/2))
 
             #Fallende Objekte Kollision mit Spieler oder unterem Rand
             for sprite in falling_sprites:

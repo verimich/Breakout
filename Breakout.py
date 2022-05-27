@@ -189,7 +189,7 @@ class Block4(Block):
 
 
 
-#Steuerung durch Statatur    
+#Steuerung durch Tastatur    
 class TastaturSteuerung_A_D(Tastatur):
     def __init__(self):
         pass
@@ -241,13 +241,26 @@ class Map:
                     sprites.append(Block3(col * 50 +25,row*50 +25))
                 if tile == '4':
                     sprites.append(Block4(col * 50 +25,row*50 +25))
+                    
+#Scoreboard als class
+class Score:
+    def __init__(self, x, y, aktueller_score):
+        self.aktueller_score = aktueller_score
+        self.x = x
+        self.y = y
+        self.score_font = pygame.font.Font("freesansbold.ttf",24)
+        self.score = self.score_font.render("Score: " + str(self.aktueller_score), True, (255,255,255))
+    def update(self):
+        self.aktueller_score += 1
+        self.score = self.score_font.render("Score: " + str(self.aktueller_score), True, (255,255,255))
 
 
     
 class CollisionDetector:
-    def __init__(self,ball: Ball, spieler: Spieler):
+    def __init__(self,ball: Ball, spieler: Spieler, my_score: Score):
         self.ball = ball 
-        self.spieler = spieler 
+        self.spieler = spieler
+        self.my_score = my_score
 
 
     def collision(self):                                                                                                    #Linke Ecke                                                                #Rechte Ecke
@@ -293,6 +306,8 @@ class CollisionDetector:
         for sprite in sprites:
             #Ball trifft Block von unten
             if self.ball.sy <= 0 and (self.ball.ball_rect.y >= sprite.block_rect.y and self.ball.ball_rect.y <=  sprite.block_rect.y + sprite.image.get_height() ) and (self.ball.ball_rect.x + self.ball.image.get_width() >= sprite.block_rect.x and self.ball.ball_rect.x <= sprite.block_rect.x + sprite.image.get_width()):
+                self.my_score.update()
+               
                 #Block wird von unten auf der links Seite getroffen, während er von rechts kommt
                 if((self.ball.sx > 0) and (self.ball.ball_rect.x + self.ball.image.get_width() <= sprite.block_rect.x + sprite.image.get_width()/2) ):
                     print("self.ball.ball_rect.x",self.ball.ball_rect.x + self.ball.image.get_width())
@@ -308,6 +323,8 @@ class CollisionDetector:
                 sprites.remove(sprite)
             #Ball trifft Block von oben
             elif self.ball.sy > 0 and (self.ball.ball_rect.y + self.ball.image.get_height() >= sprite.block_rect.y and self.ball.ball_rect.y <=  sprite.block_rect.y + sprite.image.get_height() ) and (self.ball.ball_rect.x + self.ball.image.get_width() >= sprite.block_rect.x and self.ball.ball_rect.x <= sprite.block_rect.x + sprite.image.get_width()):  
+                self.my_score.update()
+               
                 print("von oben")
                 #Block wird von unten auf der links Seite getroffen, während er von rechts kommt
                 if((self.ball.sx > 0) and (self.ball.ball_rect.x + self.ball.image.get_width() <= sprite.block_rect.x + sprite.image.get_width()/2) ):
@@ -333,13 +350,15 @@ class CollisionDetector:
                 elif muenze_y >= self.spieler.plattform_rect.y and muenze_y <= self.spieler.plattform_rect.y + self.spieler.image.get_height() and sprite.muenze_rect.x + sprite.image.get_width() >= self.spieler.plattform_rect.x and sprite.muenze_rect.x <= self.spieler.plattform_rect.x + self.spieler.image.get_width():
                     falling_sprites.remove(sprite)
                     print("SCORE+1")
+                    self.my_score.update()
             
         #Leben werden abgezogen 
         if(self.ball.ball_rect.y >= HEIGHT - self.ball.image.get_height()):
             self.spieler.remove_heart()
 
                 
-                
+
+        
         
 
 
@@ -354,9 +373,12 @@ def game_loop():
 
     #Ball
     ball = Ball()
+    
+    #my_score Objekt wird erstellt
+    my_score = Score(WIDTH/2, HEIGHT-36, 0)
 
     #Collision
-    collision = CollisionDetector(ball,spieler)
+    collision = CollisionDetector(ball,spieler, my_score)
 
     #Map Liste
     map_liste = ['tile/map.txt','tile/map1.txt','tile/map2.txt']
@@ -366,6 +388,9 @@ def game_loop():
     map = Map(os.path.join(
                 game_folder, map_liste[map_counter]))
     map.new()
+    
+    
+    
     #Game Loop 
     print("loop game started")
     running = True
@@ -373,7 +398,7 @@ def game_loop():
 
         #berechnet Zeit zwischen zwei Frames und limitiert diesen
         dt = clock.tick(FPS)
-        # Shhwarzer Hintergrund
+        # Schwarzer Hintergrund
         screen.fill(BLACK)
 
         #Spieler Bewegung
@@ -385,6 +410,8 @@ def game_loop():
         #collision
         collision.collision()
 
+        #zeigt Score an
+        screen.blit(my_score.score, (my_score.x, my_score.y))
 
         #Malt die Plattform auf unsere Oberfläche mit den jeweiligen rect Werten Spieler
         screen.blit(spieler.image, spieler.plattform_rect)    
@@ -531,4 +558,3 @@ menuStart = menu_start()
 menuEnd = menu_end()
 menuStart.start()
 
-#test

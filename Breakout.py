@@ -48,11 +48,28 @@ class Spieler():
         self.bewegung = bewegung
         #Plattform Breite
         self.plattform_width = self.image.get_width()
+        #Leben
+        self.leben = 3
+        self.leben_list = []
+        self.create_hearts()
 
     #Steuerung 
     def steuerung(self):
         self.bewegung.update(self)
-
+    
+    def create_hearts(self):
+        for i in range(0,self.leben):
+            self.leben_list.append(Leben(i*25 + 25,HEIGHT-25))
+    
+    def add_heart(self):
+        self.leben += 1
+        self.leben_list.append(Leben(self.leben*30,HEIGHT-25))
+    
+    def remove_heart(self):
+        if self.leben_list:
+            self.leben -= 1
+            del self.leben_list[-1]
+        
 class Ball():
     def __init__(self):
         self.image = pygame.image.load(os.path.join(
@@ -91,10 +108,18 @@ class Ball():
         pass
         
 
-
-
-        
-
+class Leben:
+    def __init__(self,x,y):
+        self.x = x 
+        self.y = y 
+        self.image = ""
+        self.block_rect = ""
+        self.create()
+    
+    def create(self):
+        self.image = pygame.image.load(os.path.join(
+        game_folder, 'images/heart.png')).convert_alpha() 
+        self.leben_rect = self.image.get_rect(center = (self.x,self.y))
         
     
 
@@ -102,7 +127,7 @@ class Muenze:
     def __init__(self,x,y):
         self.x = x 
         self.y = y 
-        self.ys = 4
+        self.ys = 6
         self.image = ""
         self.block_rect = ""
         self.create()
@@ -308,6 +333,13 @@ class CollisionDetector:
                 elif muenze_y >= self.spieler.plattform_rect.y and muenze_y <= self.spieler.plattform_rect.y + self.spieler.image.get_height() and sprite.muenze_rect.x + sprite.image.get_width() >= self.spieler.plattform_rect.x and sprite.muenze_rect.x <= self.spieler.plattform_rect.x + self.spieler.image.get_width():
                     falling_sprites.remove(sprite)
                     print("SCORE+1")
+            
+        #Leben werden abgezogen 
+        if(self.ball.ball_rect.y >= HEIGHT - self.ball.image.get_height()):
+            self.spieler.remove_heart()
+
+                
+                
         
 
 
@@ -316,7 +348,7 @@ class CollisionDetector:
 
 
 def game_loop():
-
+    sprites.clear()
     #init
     spieler = Spieler(TastaturSteuerung_A_D())
 
@@ -368,6 +400,10 @@ def game_loop():
             sprite.update()
             screen.blit(sprite.image,sprite.muenze_rect)
 
+        #Leben werden gemalt
+        for leben in spieler.leben_list:
+             screen.blit(leben.image,leben.leben_rect)
+
         #Display wird geupdatet    
         pygame.display.flip()
 
@@ -375,6 +411,7 @@ def game_loop():
             if event.type == pygame.QUIT:
                 running = False 
                 pygame.quit()
+                break
         
         #Nächste Level werden geladen
         if not sprites:
@@ -386,9 +423,17 @@ def game_loop():
                 
             else:
                 running = False
+                print(running,"!!!!!!!!!!!!!!!!!")
                 #Am Ende werden alle fallenden Objekte gelöscht.!!!
                 falling_sprites.clear()
                 menuEnd.start()
+
+        #Verloren
+        if not spieler.leben_list:
+            running = False
+            falling_sprites.clear()
+            menuEnd.start()
+
 
             
             
@@ -432,6 +477,7 @@ class menu_start:
                 if event.type == pygame.QUIT:
                     run = False 
                     pygame.quit()
+                    break
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     position_x,position_y = pygame.mouse.get_pos()
@@ -443,6 +489,7 @@ class menu_start:
                     elif buttonEnd.button_rect.collidepoint(position_x,position_y):
                         run = False
                         pygame.quit()
+                        break
 class menu_end:
     def __init__(self):
         pass
@@ -464,6 +511,7 @@ class menu_end:
                 if event.type == pygame.QUIT:
                     run = False 
                     pygame.quit()
+                    break
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     position_x,position_y = pygame.mouse.get_pos()
@@ -475,6 +523,7 @@ class menu_end:
                     elif buttonEnd.button_rect.collidepoint(position_x,position_y):
                         run = False
                         pygame.quit()
+                        break
                 
 
 

@@ -1,6 +1,7 @@
 import pygame
 import os
 from abc import ABC, abstractmethod
+import time
 
 #init pygame
 pygame.init()
@@ -76,7 +77,7 @@ class Ball():
             game_folder, 'images\meinball3.png')).convert_alpha()
         self.bx = screen.get_rect().centerx
         self.by = HEIGHT - 70 
-        print("spawn point",self.by)
+        
         self.ball_rect = self.image.get_rect(center = (self.bx,self.by))
 
         self.sx = 4
@@ -175,6 +176,12 @@ class Block3(Block):
             game_folder, 'images/brick3.png')).convert_alpha() 
         self.block_rect = self.image.get_rect(center = (bx,by))
         self.id = 3
+
+    def change(self):
+        self.id = 1
+        self.image = pygame.image.load(os.path.join(
+            game_folder, 'images/brick1_tile.jpg')).convert_alpha()
+
         
     
 
@@ -263,6 +270,8 @@ class CollisionDetector:
         self.ball = ball 
         self.spieler = spieler
         self.my_score = my_score
+        self.time1 = 0
+        self.time2 = 0
 
 
     def collision(self):                                                                                                    #Linke Ecke                                                                #Rechte Ecke
@@ -316,47 +325,60 @@ class CollisionDetector:
                
                 #Block wird von unten auf der links Seite getroffen, während er von rechts kommt
                 if((self.ball.sx > 0) and (self.ball.ball_rect.x + self.ball.image.get_width() <= sprite.block_rect.x + sprite.image.get_width()/2) ):
-                    print("self.ball.ball_rect.x",self.ball.ball_rect.x + self.ball.image.get_width())
-                    print("sprite.block_rect.x",sprite.block_rect.x + sprite.image.get_width()/2)
+                    
+                    
                     self.ball.sx *= -1
                 #Block wird von unten auf der rechten Seite getroffen, während er von links kommt
                 if((self.ball.sx < 0) and (self.ball.ball_rect.x >= sprite.block_rect.x + sprite.image.get_width()/2) ):
+                    
+
                     self.ball.sx *= -1
+                    
+                
+                #offset 1 nach unten
+                self.ball.ball_rect.y += 4
+
                 self.ball.sy *= -1
                 
                 #Block4 mit der Muenze wird getroffen
                 if(sprite.id == 4 ):
                     sprite.hit()
-                sprites.remove(sprite)
-                #Block3 wird Block1
-                if(sprite.id == 3 ):  
-                    destruction = True
+                #Alle Blöcke werden zerstört außer Block3 ändert seine ID
+                if(sprite.id == 3):
+                    sprite.change()
+                else:
+                    sprites.remove(sprite)
+                    
+                
                 
                
             #Ball trifft Block von oben
             elif self.ball.sy > 0 and (self.ball.ball_rect.y + self.ball.image.get_height() >= sprite.block_rect.y and self.ball.ball_rect.y <=  sprite.block_rect.y + sprite.image.get_height() ) and (self.ball.ball_rect.x + self.ball.image.get_width() >= sprite.block_rect.x and self.ball.ball_rect.x <= sprite.block_rect.x + sprite.image.get_width()):  
                 self.my_score.update()
                
-                print("von oben")
+                
                 #Block wird von unten auf der links Seite getroffen, während er von rechts kommt
                 if((self.ball.sx > 0) and (self.ball.ball_rect.x + self.ball.image.get_width() <= sprite.block_rect.x + sprite.image.get_width()/2) ):
-                    print("self.ball.ball_rect.x",self.ball.ball_rect.x + self.ball.image.get_width())
-                    print("sprite.block_rect.x",sprite.block_rect.x + sprite.image.get_width()/2)
                     self.ball.sx *= -1
                 #Block wird von unten auf der rechten Seite getroffen, während er von links kommt
                 if((self.ball.sx < 0) and (self.ball.ball_rect.x >= sprite.block_rect.x + sprite.image.get_width()/2) ):
                     self.ball.sx *= -1
 
+                #offset 1 nach oben
+                self.ball.ball_rect.y -= 4
                 self.ball.sy *= -1
                 #Block4 mit der Muenze wird getroffen
                 if(sprite.id == 4 ):
                     sprite.hit()
-                sprites.remove(sprite)
-                if(sprite.id == 3 ):  
-                    destruction = True
-            if destruction:  
-                #Block3 wird Block 1
-                sprites.append(Block1(sprite.block_rect.x + sprite.image.get_width()/2, sprite.block_rect.y + sprite.image.get_height()/2))
+                #Alle Blöcke werden zerstört außer Block3 ändert seine ID
+                if(sprite.id == 3):
+                    
+                    sprite.change()
+                else:                   
+                    sprites.remove(sprite)
+
+
+                
 
             #Fallende Objekte Kollision mit Spieler oder unterem Rand
             for sprite in falling_sprites:
@@ -409,7 +431,7 @@ def game_loop():
     
     
     #Game Loop 
-    print("loop game started")
+    
     running = True
     while running:
 
@@ -526,7 +548,7 @@ class menu_start:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     position_x,position_y = pygame.mouse.get_pos()
                     if buttonStart.button_rect.collidepoint(position_x,position_y):
-                        print('clicked on image')
+                        
                         run = False
                         game_loop()
                     

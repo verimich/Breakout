@@ -423,7 +423,7 @@ class CollisionDetector:
                     sprites.remove(sprite)
                 #Block 1 und Block 3 Sound
                 if(sprite.id == 3 or sprite.id ==1):
-                    pygame.mixer.Sound.play(brick_sound)
+                    pygame.mixer.Sound.play(hit_sound)
                     
                 
                 
@@ -456,7 +456,7 @@ class CollisionDetector:
                     sprites.remove(sprite)
                 #Block 1 und Block 3 Sound
                 if(sprite.id == 3 or sprite.id ==1):
-                    pygame.mixer.Sound.play(brick_sound)
+                    pygame.mixer.Sound.play(hit_sound)
 
 
                 
@@ -491,6 +491,8 @@ class CollisionDetector:
             #Mitte des Spielers
             self.ball.ball_rect.x = self.spieler.plattform_rect.x + self.spieler.image.get_width() / 2 - self.ball.image.get_width() / 2
             self.ball.ball_rect.y = self.spieler.plattform_rect.y - 20
+            #Sound Lebensverlust
+            pygame.mixer.Sound.play(brick_sound)
                 
 
         

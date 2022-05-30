@@ -64,7 +64,8 @@ class Spieler():
     
     def add_heart(self):
         self.leben += 1
-        self.leben_list.append(Leben(self.leben*30,HEIGHT-25))
+        print("HEART ADDED")
+        self.leben_list.append(Leben(self.leben*25,HEIGHT-25))
     
     def remove_heart(self):
         if self.leben_list:
@@ -91,7 +92,12 @@ class Ball():
         
         rechterRand = WIDTH - self.image.get_width()
 
-        if(self.ball_rect.y >= HEIGHT - self.image.get_height() or self.ball_rect.y <= 0): 
+        # unterer Rand
+        if(self.ball_rect.y >= HEIGHT - self.image.get_height() and self.sy > 0): 
+            self.sy *= -1
+        
+        #Oberer Rand
+        if(self.ball_rect.y <= 0 and self.sy < 0): 
             self.sy *= -1
         
         #Bugfixing linker, rechter Rand
@@ -102,12 +108,6 @@ class Ball():
         #Nach unten fliegend linker Rand
         if( self.ball_rect.x <= linkerRand  and self.sx < 0):
             self.sx *= -1
-        
-
-
-    def __del__(self):
-        pass
-        
 
 class Leben:
     def __init__(self,x,y):
@@ -131,6 +131,7 @@ class Muenze:
         self.ys = 6
         self.image = ""
         self.block_rect = ""
+        self.id = 5
         self.create()
 
     def create(self):
@@ -141,6 +142,25 @@ class Muenze:
         
     def update(self):
         self.muenze_rect.y += self.ys
+
+class FallendesHerz:
+    def __init__(self,x,y):
+        self.x = x 
+        self.y = y 
+        self.ys = 6
+        self.image = ""
+        self.block_rect = ""
+        self.id = 6
+        self.create()
+
+    def create(self):
+        self.image = pygame.image.load(os.path.join(
+        game_folder, 'images/heart.png')).convert_alpha() 
+        self.y += self.image.get_height()/2
+        self.herz_rect = self.image.get_rect(center = (self.x,self.y))
+        
+    def update(self):
+        self.herz_rect.y += self.ys
         
 
 
@@ -168,6 +188,9 @@ class Block2(Block):
             game_folder, 'images/brick2_tile.jpg')).convert_alpha() 
         self.block_rect = self.image.get_rect(center = (bx,by))
         self.id = 2
+    
+    def hit(self):
+        falling_sprites.append(FallendesHerz(self.block_rect.x + self.image.get_width()/2,self.block_rect.y + self.image.get_height()))
 
 #Block Klasse
 class Block3(Block):
@@ -316,8 +339,6 @@ class CollisionDetector:
 
 
         for sprite in sprites:
-            #Destruction fuer Block3
-            destruction = False
         
             #Ball trifft Block von unten
             if self.ball.sy <= 0 and (self.ball.ball_rect.y >= sprite.block_rect.y and self.ball.ball_rect.y <=  sprite.block_rect.y + sprite.image.get_height() ) and (self.ball.ball_rect.x + self.ball.image.get_width() >= sprite.block_rect.x and self.ball.ball_rect.x <= sprite.block_rect.x + sprite.image.get_width()):
@@ -340,9 +361,11 @@ class CollisionDetector:
 
                 self.ball.sy *= -1
                 
-                #Block4 mit der Muenze wird getroffen
-                if(sprite.id == 4 ):
+                #Block4 mit der Muenze wird getroffen, oder Block2 lässt Herzen fallen
+                if sprite.id == 4 or sprite.id == 2:
                     sprite.hit()
+
+
                 #Alle Blöcke werden zerstört außer Block3 ändert seine ID
                 if(sprite.id == 3):
                     sprite.change()
@@ -367,9 +390,11 @@ class CollisionDetector:
                 #offset 1 nach oben
                 self.ball.ball_rect.y -= 4
                 self.ball.sy *= -1
-                #Block4 mit der Muenze wird getroffen
-                if(sprite.id == 4 ):
+                #Block4 mit der Muenze wird getroffen, oder Block2 lässt Herzen fallen
+                if sprite.id == 4 or sprite.id == 2:
                     sprite.hit()
+
+        
                 #Alle Blöcke werden zerstört außer Block3 ändert seine ID
                 if(sprite.id == 3):
                     
@@ -382,19 +407,34 @@ class CollisionDetector:
 
             #Fallende Objekte Kollision mit Spieler oder unterem Rand
             for sprite in falling_sprites:
-                muenze_y = sprite.muenze_rect.y + sprite.image.get_height()
-                if muenze_y >= HEIGHT:
-                    falling_sprites.remove(sprite)
-                    print("HIT GROUND")
-                elif muenze_y >= self.spieler.plattform_rect.y and muenze_y <= self.spieler.plattform_rect.y + self.spieler.image.get_height() and sprite.muenze_rect.x + sprite.image.get_width() >= self.spieler.plattform_rect.x and sprite.muenze_rect.x <= self.spieler.plattform_rect.x + self.spieler.image.get_width():
-                    falling_sprites.remove(sprite)
-                    print("SCORE+1")
-                    self.my_score.update()
+                #id der Münze
+                if sprite.id == 5:
+                    muenze_y = sprite.muenze_rect.y + sprite.image.get_height()
+                    if muenze_y >= HEIGHT:
+                        falling_sprites.remove(sprite)
+                        print("HIT GROUND")
+                    elif muenze_y >= self.spieler.plattform_rect.y and muenze_y <= self.spieler.plattform_rect.y + self.spieler.image.get_height() and sprite.muenze_rect.x + sprite.image.get_width() >= self.spieler.plattform_rect.x and sprite.muenze_rect.x <= self.spieler.plattform_rect.x + self.spieler.image.get_width():
+                        falling_sprites.remove(sprite)
+                        print("SCORE+1")
+                        self.my_score.update()
+                elif sprite.id == 6:
+                    herz_y = sprite.herz_rect.y + sprite.image.get_height()
+                    if herz_y >= HEIGHT:
+                        falling_sprites.remove(sprite)
+                        print("HIT GROUND")
+                    elif herz_y >= self.spieler.plattform_rect.y and herz_y <= self.spieler.plattform_rect.y + self.spieler.image.get_height() and sprite.herz_rect.x + sprite.image.get_width() >= self.spieler.plattform_rect.x and sprite.herz_rect.x <= self.spieler.plattform_rect.x + self.spieler.image.get_width():
+                        falling_sprites.remove(sprite)
+                        print("HEART+1")
+                        #maximal 6 Herzen
+                        if self.spieler.leben < 6:
+                            self.spieler.add_heart()
             
-        #Leben werden abgezogen 
+        #Leben werden abgezogen und der Ball ändert Position ausgerichtet nach dem Spieler
         if(self.ball.ball_rect.y >= HEIGHT - self.ball.image.get_height()):
             self.spieler.remove_heart()
-
+            #Mitte des Spielers
+            self.ball.ball_rect.x = self.spieler.plattform_rect.x + self.spieler.image.get_width() / 2 - self.ball.image.get_width() / 2
+            self.ball.ball_rect.y = self.spieler.plattform_rect.y - 20
                 
 
         
@@ -464,7 +504,12 @@ def game_loop():
         #Fallende Objekte werden gemalt
         for sprite in falling_sprites:
             sprite.update()
-            screen.blit(sprite.image,sprite.muenze_rect)
+            #Münze
+            if sprite.id == 5:
+                screen.blit(sprite.image,sprite.muenze_rect)
+            #Herz
+            elif sprite.id == 6:
+                screen.blit(sprite.image,sprite.herz_rect)
 
         #Leben werden gemalt
         for leben in spieler.leben_list:
@@ -485,6 +530,9 @@ def game_loop():
             if map_counter < len(map_liste):
                 map = Map(os.path.join(
                 game_folder,map_liste[map_counter] ))
+                #Mitte des Spielers
+                ball.ball_rect.x = spieler.plattform_rect.x + spieler.image.get_width() / 2 - ball.image.get_width() / 2
+                ball.ball_rect.y = spieler.plattform_rect.y - 20
                 map.new()
                 
             else:

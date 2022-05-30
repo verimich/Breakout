@@ -8,6 +8,20 @@ import time
 pygame.init()
 clock = pygame.time.Clock()
 
+#Hintergrundmusik und Sounds #pygame.mixer.music.stop() falls ausstellfunktion
+hit_sound = pygame.mixer.Sound("sounds/Ball_Bounce-Popup_Pixels-172648817.wav")
+heart_sound = pygame.mixer.Sound("sounds/success-1-6297.wav")
+brick_sound = pygame.mixer.Sound("sounds/Large Thump Or Bump-SoundBible.com-395560493.wav")
+muenze_sound = pygame.mixer.Sound("sounds/announcement-sound-4-21464.wav")
+backroundplaylist = list()
+backroundplaylist.append ("sounds/LevelIV.wav")
+backroundplaylist.append ("sounds/LevelII.wav")
+backroundplaylist.append ("sounds/LevelIII.wav")
+backroundplaylist.append ("sounds/LevelIV.wav")
+backroundplaylist.append ("sounds/LevelI.wav")
+backround_sound = pygame.mixer.music.load(backroundplaylist.pop())
+pygame.mixer.music.queue (backroundplaylist.pop()) #queque den nächsten backroundsong
+
 #Pygame Init
 TITLE = "Breakout"
 WIDTH = 1200
@@ -118,6 +132,7 @@ class Leben:
         self.create()
     
     def create(self):
+
         self.image = pygame.image.load(os.path.join(
         game_folder, 'images/heart.png')).convert_alpha() 
         self.leben_rect = self.image.get_rect(center = (self.x,self.y))
@@ -135,6 +150,9 @@ class Muenze:
         self.create()
 
     def create(self):
+        #Sound bei Muenzgeneration
+        
+        pygame.mixer.Sound.play(muenze_sound)  
         self.image = pygame.image.load(os.path.join(
         game_folder, 'images/coin.png')).convert_alpha() 
         self.y += self.image.get_height()/2
@@ -154,6 +172,8 @@ class FallendesHerz:
         self.create()
 
     def create(self):
+        #Sound Herz wird generiert
+        pygame.mixer.Sound.play(muenze_sound)
         self.image = pygame.image.load(os.path.join(
         game_folder, 'images/heart.png')).convert_alpha() 
         self.y += self.image.get_height()/2
@@ -323,7 +343,11 @@ class CollisionDetector:
         self.time2 = 0
 
 
-    def collision(self):                                                                                                    #Linke Ecke                                                                #Rechte Ecke
+    def collision(self):        
+        #Musik ersetzen durch Sound
+        #pygame.mixer.music.stop()
+        #pygame.mixer.Sound.play(hit_sound)  
+                                                                                              #Linke Ecke                                                                #Rechte Ecke
         #Spieler trifft den Ball
         if((self.ball.ball_rect.y + self.ball.image.get_height() >= self.spieler.plattform_rect.y and self.ball.ball_rect.y + self.ball.image.get_height() <= self.spieler.plattform_rect.y + self.spieler.image.get_height()) and (self.ball.ball_rect.x + self.ball.image.get_width() >= self.spieler.plattform_rect.x and  self.ball.ball_rect.x   <= self.spieler.plattform_rect.x + self.spieler.image.get_width() ) and self.ball.sy >= 0):
                 #linke Hälfte von links
@@ -397,6 +421,9 @@ class CollisionDetector:
                     sprite.change()
                 else:
                     sprites.remove(sprite)
+                #Block 1 und Block 3 Sound
+                if(sprite.id == 3 or sprite.id ==1):
+                    pygame.mixer.Sound.play(brick_sound)
                     
                 
                 
@@ -427,6 +454,9 @@ class CollisionDetector:
                     sprite.change()
                 else:                   
                     sprites.remove(sprite)
+                #Block 1 und Block 3 Sound
+                if(sprite.id == 3 or sprite.id ==1):
+                    pygame.mixer.Sound.play(brick_sound)
 
 
                 
@@ -473,6 +503,12 @@ class CollisionDetector:
 
 def game_loop():
     sprites.clear()
+
+    #Musik spielen
+    pygame.mixer.music.play(-1,0.0)
+    #Lautstärke Hintergrundmusik
+    pygame.mixer.music.set_volume(.6)
+
     #init
     spieler = Spieler(TastaturSteuerung_A_D())
 
@@ -617,6 +653,7 @@ class MenuStart:
         pass
 
     def start(self):
+        pygame.mixer.music.stop()
         run = True
         buttonStart = button(WIDTH/2,100,"images/start.jpg")
         buttonEnd = button(WIDTH/2,400,"images/end.jpg")
@@ -651,6 +688,7 @@ class MenuEnd:
         pass
 
     def start(self,score,highscore):
+        pygame.mixer.music.stop()
         run = True
         buttonStart = button(WIDTH/2,100,"images/nochmal.jpg")
         buttonEnd = button(WIDTH/2,400,"images/end.jpg")

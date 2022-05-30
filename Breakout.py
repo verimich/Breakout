@@ -1,3 +1,4 @@
+from turtle import width
 import pygame
 import os
 from abc import ABC, abstractmethod
@@ -280,10 +281,10 @@ class Score:
         self.x = x
         self.y = y
         self.score_font = pygame.font.Font("freesansbold.ttf",24)
-        self.score = self.score_font.render("Score: " + str(self.aktueller_score), True, (255,255,255))
+        self.score_rendered = self.score_font.render("Score: " + str(self.aktueller_score), True, (255,255,255))
     def update(self):
         self.aktueller_score += 1
-        self.score = self.score_font.render("Score: " + str(self.aktueller_score), True, (255,255,255))
+        self.score_rendered = self.score_font.render("Score: " + str(self.aktueller_score), True, (255,255,255))
 
 #Highscore 
 class HighScore:
@@ -307,8 +308,8 @@ class HighScore:
             self.score_rendered = self.score_font.render("Highscore: " + self.score, True, (255,255,255))
     def ueberschreiben(self,newscore):
         with open(self.filename, 'w') as f:
-            self.score = f.write(str(newscore))
-
+            f.write(str(newscore))
+            self.newhighscore_rendered = self.score_font.render("Neuer Highscore: " + str(newscore), True, (0,0,0))
 
 
 
@@ -521,7 +522,7 @@ def game_loop():
         screen.blit(highscore.score_rendered, (highscore.x,highscore.y))
 
         #zeigt Score an
-        screen.blit(my_score.score, (my_score.x, my_score.y))
+        screen.blit(my_score.score_rendered, (my_score.x, my_score.y))
 
         #Malt die Plattform auf unsere Oberfläche mit den jeweiligen rect Werten Spieler
         screen.blit(spieler.image, spieler.plattform_rect)    
@@ -575,7 +576,7 @@ def game_loop():
                 #Neuer Highscore überprüft
                 if my_score.aktueller_score > int(highscore.score):
                     highscore.ueberschreiben(my_score.aktueller_score)
-                menuEnd.start()
+                menuEnd.start(my_score,highscore)
 
         #Verloren
         if not spieler.leben_list:
@@ -587,7 +588,7 @@ def game_loop():
             if my_score.aktueller_score > int(highscore.score):
                 print("überschrieben")
                 highscore.ueberschreiben(my_score.aktueller_score)
-            menuEnd.start()
+            menuEnd.start(my_score,highscore)
 
 
             
@@ -622,7 +623,7 @@ class MenuStart:
 
         while run:
 
-            screen.fill(WHITE)
+            screen.fill((192,192,192))
 
             screen.blit(buttonStart.image, buttonStart.button_rect)
             screen.blit(buttonEnd.image, buttonEnd.button_rect)
@@ -649,17 +650,26 @@ class MenuEnd:
     def __init__(self):
         pass
 
-    def start(self):
+    def start(self,score,highscore):
         run = True
         buttonStart = button(WIDTH/2,100,"images/nochmal.jpg")
         buttonEnd = button(WIDTH/2,400,"images/end.jpg")
+        score.score_rendered = score.score_font.render("Score: " + str(score.aktueller_score), True, (0,0,0))
+        highscore.score_rendered = highscore.score_font.render("Highscore: " + highscore.score, True, (0,0,0))
+
 
         while run:
 
-            screen.fill(WHITE)
-
+            screen.fill((192,192,192))
             screen.blit(buttonStart.image, buttonStart.button_rect)
             screen.blit(buttonEnd.image, buttonEnd.button_rect)
+            #Highscore und score anzeigen
+            screen.blit(highscore.score_rendered, (WIDTH/2 - buttonStart.image.get_width()/2,500))
+            screen.blit(score.score_rendered, (WIDTH/2- buttonStart.image.get_width()/2,550))
+            #Wenn der Highscore geknackt wurde
+            if score.aktueller_score > int(highscore.score):
+                screen.blit(highscore.newhighscore_rendered, (WIDTH/2 - buttonStart.image.get_width()/2,600))
+
             pygame.display.flip()
 
             for event in pygame.event.get():

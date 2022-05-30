@@ -611,7 +611,7 @@ class button:
         self.button_rect = self.image.get_rect(center = (self.x,self.y))
 
 
-class menu_start:
+class MenuStart:
     def __init__(self):
         pass
 
@@ -645,7 +645,7 @@ class menu_start:
                         run = False
                         pygame.quit()
                         break
-class menu_end:
+class MenuEnd:
     def __init__(self):
         pass
 
@@ -682,7 +682,7 @@ class menu_end:
                 
 
 
-menuStart = menu_start()
-menuEnd = menu_end()
+menuStart = MenuStart()
+menuEnd = MenuEnd()
 menuStart.start()
 

@@ -29,7 +29,6 @@ falling_sprites = []
 # Dateisystem
 game_folder = os.path.dirname(__file__)
 
-
 #abstrakte Klasse für die Bewegung
 class Tastatur(ABC):
     @abstractmethod
@@ -286,6 +285,32 @@ class Score:
         self.aktueller_score += 1
         self.score = self.score_font.render("Score: " + str(self.aktueller_score), True, (255,255,255))
 
+#Highscore 
+class HighScore:
+    def __init__(self,x,y,filename):
+        self.x = x 
+        self.y = y 
+        self.filename = filename
+        self.score = ""
+        self.score_font = pygame.font.Font("freesansbold.ttf",24)
+        self.highscorepath = os.path.join(game_folder,self.filename)
+        self.lesen()
+    def lesen(self):
+        #In der Highscore Datei steht etwas
+        if os.path.getsize(self.highscorepath) > 0:
+            with open(self.filename, 'rt') as f:
+                self.score = f.read()
+                self.score_rendered = self.score_font.render("Highscore: " + self.score, True, (255,255,255))
+        #Datei ist leer
+        else:
+            self.score = "0"
+            self.score_rendered = self.score_font.render("Highscore: " + self.score, True, (255,255,255))
+    def ueberschreiben(self,newscore):
+        with open(self.filename, 'w') as f:
+            self.score = f.write(str(newscore))
+
+
+
 
     
 class CollisionDetector:
@@ -456,6 +481,9 @@ def game_loop():
     #my_score Objekt wird erstellt
     my_score = Score(WIDTH/2, HEIGHT-36, 0)
 
+    #highscore
+    highscore = HighScore(WIDTH - 200,HEIGHT-36,'highscore/highscore.txt')
+
     #Collision
     collision = CollisionDetector(ball,spieler, my_score)
 
@@ -488,6 +516,9 @@ def game_loop():
 
         #collision
         collision.collision()
+
+        #zeigt Highscore an
+        screen.blit(highscore.score_rendered, (highscore.x,highscore.y))
 
         #zeigt Score an
         screen.blit(my_score.score, (my_score.x, my_score.y))
@@ -535,17 +566,27 @@ def game_loop():
                 ball.ball_rect.y = spieler.plattform_rect.y - 20
                 map.new()
                 
+            #Alle Level durchgespielt, Spiel ist zu Ende
             else:
                 running = False
                 print(running,"!!!!!!!!!!!!!!!!!")
                 #Am Ende werden alle fallenden Objekte gelöscht.!!!
                 falling_sprites.clear()
+                #Neuer Highscore überprüft
+                if my_score.aktueller_score > int(highscore.score):
+                    highscore.ueberschreiben(my_score.aktueller_score)
                 menuEnd.start()
 
         #Verloren
         if not spieler.leben_list:
             running = False
             falling_sprites.clear()
+            print("überprüfung")
+            print("Highscore: ",int(highscore.score),"score: ",my_score.aktueller_score)
+            #Neuer Highscore überprüft
+            if my_score.aktueller_score > int(highscore.score):
+                print("überschrieben")
+                highscore.ueberschreiben(my_score.aktueller_score)
             menuEnd.start()
 
 

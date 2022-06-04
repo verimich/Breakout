@@ -375,6 +375,7 @@ class Score(ObserverSubject):
     def update(self):
         self.aktueller_score += 1
         self.score_rendered = self.score_font.render("Score: " + str(self.aktueller_score), True, (255,255,255))
+        self._notify()
 
     def register(self, observer:Observer):
         self._observers.append(observer)
@@ -414,6 +415,7 @@ class HighScore:
     def ueberschreiben(self,newscore):
         with open(self.filename, 'w') as f:
             f.write(str(newscore))
+            print("Überschrieben")
             self.newhighscore_rendered = self.score_font.render("Neuer Highscore: " + str(newscore), True, (0,0,0))
 
 
@@ -718,7 +720,7 @@ def game_loop():
                 running = False
                 print(running,"!!!!!!!!!!!!!!!!!")
                 #Am Ende werden alle fallenden Objekte gelöscht.!!!
-                falling_sprites.clear()
+                falling_sprites.clear()  
                 menuEnd.start(my_score,highscore)
 
         #Verloren

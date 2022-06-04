@@ -148,6 +148,7 @@ class Spieler(ObserverSubject):
         for observer in self._observers:
             observer.update(self,self.message)
 
+
 #Invoker für Command Pattern
 class Tastatur:
 
@@ -360,9 +361,12 @@ class Map:
                 if tile == '4':
                     sprites.append(Block4(col * 50 +25,row*50 +25))
                     
-#Scoreboard als class
-class Score:
-    def __init__(self, x, y, aktueller_score):
+#Scoreboard als class 
+#Observersubject im Comandpattern
+class Score(ObserverSubject):
+    def __init__(self, x, y, aktueller_score, highscore):
+        self.highscore = highscore
+        ObserverSubject.__init__(self)
         self.aktueller_score = aktueller_score
         self.x = x
         self.y = y
@@ -371,6 +375,20 @@ class Score:
     def update(self):
         self.aktueller_score += 1
         self.score_rendered = self.score_font.render("Score: " + str(self.aktueller_score), True, (255,255,255))
+
+    def register(self, observer:Observer):
+        self._observers.append(observer)
+
+    def _notify(self):
+        for observer in self._observers:
+            observer.update(self, self.highscore)
+
+class HighScoreUeberschritten(Observer):
+    def update(self, subject:ObserverSubject, highscore):
+        if subject.aktueller_score > int(highscore.score):
+            highscore.ueberschreiben(subject.aktueller_score) 
+            highscore.uebertroffen = True           
+
 
 #Highscore 
 class HighScore:
@@ -382,6 +400,7 @@ class HighScore:
         self.score_font = pygame.font.Font("freesansbold.ttf",24)
         self.highscorepath = os.path.join(game_folder,self.filename)
         self.lesen()
+        self.uebertroffen = False
     def lesen(self):
         #In der Highscore Datei steht etwas
         if os.path.getsize(self.highscorepath) > 0:
@@ -594,15 +613,22 @@ def game_loop():
     #Observer Pattern registrieren
     spieler.register(UnterMaximalenLeben())
     spieler.register(LebenVerlierenMoeglich())
+    
 
     #Ball
     ball = Ball()
-    
-    #my_score Objekt wird erstellt
-    my_score = Score(WIDTH/2, HEIGHT-36, 0)
 
     #highscore
     highscore = HighScore(WIDTH - 200,HEIGHT-36,'highscore/highscore.txt')
+    
+    #my_score Objekt wird erstellt
+    my_score = Score(WIDTH/2, HEIGHT-36, 0, highscore)
+
+    
+
+    #Observer Pattern HighScore
+    my_score.register(HighScoreUeberschritten())
+
 
     #Collision
     collision = CollisionDetector(ball,spieler, my_score)
@@ -693,9 +719,6 @@ def game_loop():
                 print(running,"!!!!!!!!!!!!!!!!!")
                 #Am Ende werden alle fallenden Objekte gelöscht.!!!
                 falling_sprites.clear()
-                #Neuer Highscore überprüft
-                if my_score.aktueller_score > int(highscore.score):
-                    highscore.ueberschreiben(my_score.aktueller_score)
                 menuEnd.start(my_score,highscore)
 
         #Verloren
@@ -704,10 +727,6 @@ def game_loop():
             falling_sprites.clear()
             print("überprüfung")
             print("Highscore: ",int(highscore.score),"score: ",my_score.aktueller_score)
-            #Neuer Highscore überprüft
-            if my_score.aktueller_score > int(highscore.score):
-                print("überschrieben")
-                highscore.ueberschreiben(my_score.aktueller_score)
             menuEnd.start(my_score,highscore)
 
 
@@ -789,7 +808,7 @@ class MenuEnd:
             screen.blit(highscore.score_rendered, (WIDTH/2 - buttonStart.image.get_width()/2,500))
             screen.blit(score.score_rendered, (WIDTH/2- buttonStart.image.get_width()/2,550))
             #Wenn der Highscore geknackt wurde
-            if score.aktueller_score > int(highscore.score):
+            if highscore.uebertroffen: 
                 screen.blit(highscore.newhighscore_rendered, (WIDTH/2 - buttonStart.image.get_width()/2,600))
 
             pygame.display.flip()

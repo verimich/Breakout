@@ -130,12 +130,12 @@ class Spieler(ObserverSubject):
         self.leben += 1
         self.message = "add"
         print("HEART ADDED in Spieler Klasse")
-        self._notify(self)
+        self._notify()
     
     def remove_heart(self):
         self.leben -= 1
         self.message = "remove"
-        self._notify(self)
+        self._notify()
     
     #Methoden für das Observer Pattern
     def register(self, observer):
@@ -144,7 +144,7 @@ class Spieler(ObserverSubject):
     def unregister(self, observer):
         self._observers.remove(observer)
     
-    def _notify(self,rt):
+    def _notify(self):
         for observer in self._observers:
             observer.update(self,self.message)
 

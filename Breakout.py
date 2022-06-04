@@ -548,8 +548,8 @@ class CollisionDetector:
                         falling_sprites.remove(sprite)
                         print("HEART+1")
                         #maximal 6 Herzen
-                        if self.spieler.leben < 6:
-                            self.spieler.add_heart()
+                    
+                        self.spieler.add_heart()
             
         #Leben werden abgezogen und der Ball ändert Position ausgerichtet nach dem Spieler
         if(self.ball.ball_rect.y >= HEIGHT - self.ball.image.get_height()):

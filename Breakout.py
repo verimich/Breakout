@@ -44,15 +44,52 @@ falling_sprites = []
 # Dateisystem
 game_folder = os.path.dirname(__file__)
 
-#abstrakte Klasse für die Bewegung
-class Tastatur(ABC):
+#Observer Pattern OberserverSubject Basisklasse
+class ObserverSubject(metaclass=ABCMeta):
+    def __init__(self):
+        self._observers = []
+    
+    def register(self, observer):
+        self._observers.append(observer)
+    
+    def unregister(self, observer):
+        self._observers.remove(observer)
+    
+    def _notify(self):
+        for observer in self._observers:
+            observer.update(self)
+
+#Basis Klasse für die Observer im Observer Pattern
+class Observer(metaclass=ABCMeta):
     @abstractmethod
-    def update(self):
+    def update(self, subject: ObserverSubject):
         pass
 
+#Leben hinzufügen Observer
+class UnterMaximalenLeben(Observer):
+    def update(self, subject: ObserverSubject,message):
+        if subject.leben <= subject.maxhealth and message == "add":
+            print(subject.maxhealth," ",subject.leben)
+            print("HEART ADDED UnterMaximalenLeben")
+            subject.leben_list.append(Leben(subject.leben*25,HEIGHT-25))
+        elif message == "add":
+            subject.leben = subject.maxhealth
+        
+
+#Leben verlieren Observer
+class LebenVerlierenMoeglich(Observer):
+    def update(self,subject,message):
+        if subject.leben > 0 and message == "remove":
+            del subject.leben_list[-1]
+        elif message == "remove":
+            subject.verloren = True
+
+
+#Im Observer Pattern ist dies das ObserverSubject
 #Im Command Pattern ist dies der Receiver
-class Spieler():
+class Spieler(ObserverSubject):
     def __init__(self):
+        self._observers = []
         #Bild laden
         self.image = pygame.image.load(os.path.join(
             game_folder, 'images\glasspaddle1.png')).convert_alpha()
@@ -65,33 +102,51 @@ class Spieler():
         #Leben
         self.leben = 3
         self.leben_list = []
-        self.create_hearts()
+        self.maxhealth = 6
+        #Spiel verloren
+        self.verloren = False
+        #message für das Observer pattern
+        self.message = ""
+        #Herzen werden einmal erstellt
+        self._create_hearts()
 
-    #Bewegung nach rechts für Command Pattern
+    #Bewegung nach rechts für das Command Pattern
     def move_right(self):
         rechterRand = WIDTH - self.plattform_width
         if self.plattform_rect.x < rechterRand:
             self.plattform_rect.x += self.speed 
     
-    #Bewegung nach links für Command Pattern
+    #Bewegung nach links für das Command Pattern
     def move_left(self):
         linkerRand = 0
         if self.plattform_rect.x > linkerRand:
             self.plattform_rect.x -= self.speed
     
-    def create_hearts(self):
+    def _create_hearts(self):
         for i in range(0,self.leben):
             self.leben_list.append(Leben(i*25 + 25,HEIGHT-25))
     
     def add_heart(self):
         self.leben += 1
-        print("HEART ADDED")
-        self.leben_list.append(Leben(self.leben*25,HEIGHT-25))
+        self.message = "add"
+        print("HEART ADDED in Spieler Klasse")
+        self._notify(self)
     
     def remove_heart(self):
-        if self.leben_list:
-            self.leben -= 1
-            del self.leben_list[-1]
+        self.leben -= 1
+        self.message = "remove"
+        self._notify(self)
+    
+    #Methoden für das Observer Pattern
+    def register(self, observer):
+        self._observers.append(observer)
+    
+    def unregister(self, observer):
+        self._observers.remove(observer)
+    
+    def _notify(self,rt):
+        for observer in self._observers:
+            observer.update(self,self.message)
 
 #Invoker für Command Pattern
 class Tastatur:
@@ -107,7 +162,7 @@ class Tastatur:
             if keys[command_taste]:
                 command.execute()
 
-#Command abtrakte Klasse
+#Command abtrakte Klasse für das Command Pattern
 class ICommand(metaclass=ABCMeta):
 
     @abstractmethod
@@ -498,6 +553,7 @@ class CollisionDetector:
             
         #Leben werden abgezogen und der Ball ändert Position ausgerichtet nach dem Spieler
         if(self.ball.ball_rect.y >= HEIGHT - self.ball.image.get_height()):
+            print("REMOVE_HEART()")
             self.spieler.remove_heart()
             #Mitte des Spielers
             self.ball.ball_rect.x = self.spieler.plattform_rect.x + self.spieler.image.get_width() / 2 - self.ball.image.get_width() / 2
@@ -534,6 +590,10 @@ def game_loop():
     #Commands werden registriert im Invoker
     tastatur.register(move_right,pygame.K_d)
     tastatur.register(move_left,pygame.K_a)
+
+    #Observer Pattern registrieren
+    spieler.register(UnterMaximalenLeben())
+    spieler.register(LebenVerlierenMoeglich())
 
     #Ball
     ball = Ball()
@@ -639,7 +699,7 @@ def game_loop():
                 menuEnd.start(my_score,highscore)
 
         #Verloren
-        if not spieler.leben_list:
+        if spieler.verloren:
             running = False
             falling_sprites.clear()
             print("überprüfung")

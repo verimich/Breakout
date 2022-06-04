@@ -1,7 +1,7 @@
 from turtle import width
 import pygame
 import os
-from abc import ABC, abstractmethod
+from abc import ABC, ABCMeta, abstractmethod
 import time
 
 #init pygame
@@ -50,8 +50,9 @@ class Tastatur(ABC):
     def update(self):
         pass
 
+#Im Command Pattern ist dies der Receiver
 class Spieler():
-    def __init__(self,bewegung: Tastatur):
+    def __init__(self):
         #Bild laden
         self.image = pygame.image.load(os.path.join(
             game_folder, 'images\glasspaddle1.png')).convert_alpha()
@@ -59,8 +60,6 @@ class Spieler():
         self.plattform_rect = self.image.get_rect(center = (screen.get_rect().centerx,HEIGHT - 45 ))
         #Bewegungsgeschwindigkeit
         self.speed = 10
-        #Plattform Steuerung
-        self.bewegung = bewegung
         #Plattform Breite
         self.plattform_width = self.image.get_width()
         #Leben
@@ -68,9 +67,17 @@ class Spieler():
         self.leben_list = []
         self.create_hearts()
 
-    #Steuerung 
-    def steuerung(self):
-        self.bewegung.update(self)
+    #Bewegung nach rechts für Command Pattern
+    def move_right(self):
+        rechterRand = WIDTH - self.plattform_width
+        if self.plattform_rect.x < rechterRand:
+            self.plattform_rect.x += self.speed 
+    
+    #Bewegung nach links für Command Pattern
+    def move_left(self):
+        linkerRand = 0
+        if self.plattform_rect.x > linkerRand:
+            self.plattform_rect.x -= self.speed
     
     def create_hearts(self):
         for i in range(0,self.leben):
@@ -85,6 +92,43 @@ class Spieler():
         if self.leben_list:
             self.leben -= 1
             del self.leben_list[-1]
+
+#Invoker für Command Pattern
+class Tastatur:
+
+    def __init__(self):
+        self.commands = {}
+
+    def register(self,command,command_taste):
+        self.commands[command] = command_taste
+
+    def execute(self,keys):
+        for command,command_taste in self.commands.items():
+            if keys[command_taste]:
+                command.execute()
+
+#Command abtrakte Klasse
+class ICommand(metaclass=ABCMeta):
+
+    @abstractmethod
+    def execute():
+        pass
+
+#Bewegung nach links
+class MoveLeft(ICommand):
+    def __init__(self,spieler: Spieler):
+        self.spieler = spieler
+    
+    def execute(self):
+        self.spieler.move_left()
+
+#Bewegung nach rechts
+class MoveRight(ICommand):
+    def __init__(self,spieler: Spieler):
+        self.spieler = spieler
+    
+    def execute(self):
+        self.spieler.move_right()
         
 class Ball():
     def __init__(self):
@@ -181,8 +225,6 @@ class FallendesHerz:
         
     def update(self):
         self.herz_rect.y += self.ys
-        
-
 
 
 class Block:
@@ -238,37 +280,6 @@ class Block4(Block):
     
     def hit(self):
         falling_sprites.append(Muenze(self.block_rect.x + self.image.get_width()/2,self.block_rect.y + self.image.get_height()))
-
-
-
-#Steuerung durch Tastatur    
-class TastaturSteuerung_A_D(Tastatur):
-    def __init__(self):
-        pass
-
-    #Bewegung der Plattform
-    def update(self,spieler: Spieler):
-        keys = pygame.key.get_pressed()
-
-        rechterRand = WIDTH - spieler.plattform_width
-        linkerRand = 0
-        if keys[pygame.K_d] and spieler.plattform_rect.x < rechterRand:
-            spieler.plattform_rect.x += spieler.speed 
-        elif keys[pygame.K_a] and spieler.plattform_rect.x > linkerRand:
-            spieler.plattform_rect.x -= spieler.speed
-
-#Steuerung durch Tastatur via Pfeiltasten
-class TastaturSteuerung_Arrow_Keys(Tastatur):
-    def update(self,spieler: Spieler):
-        
-        keys = pygame.key.get_pressed()
-        rechterRand = WIDTH - spieler.plattform_width
-        linkerRand = 0
-        if keys[pygame.K_LEFT] and spieler.plattform_rect.x <rechterRand:
-            spieler.plattform_rect.x += spieler.speed
-        elif keys[pygame.K_RIGHT] and spieler.plattform_rect.x > linkerRand:
-            spieler.plattform_rect.x -= spieler.speed
-
 
 #TileMap Klasse
 class Map:
@@ -511,8 +522,18 @@ def game_loop():
     #Lautstärke Hintergrundmusik
     pygame.mixer.music.set_volume(.6)
 
-    #init
-    spieler = Spieler(TastaturSteuerung_A_D())
+    #init spieler
+    spieler = Spieler()
+    #Invoker
+    tastatur = Tastatur()
+
+    #Kommandos
+    move_left = MoveLeft(spieler)
+    move_right = MoveRight(spieler)
+
+    #Commands werden registriert im Invoker
+    tastatur.register(move_right,pygame.K_d)
+    tastatur.register(move_left,pygame.K_a)
 
     #Ball
     ball = Ball()
@@ -547,8 +568,9 @@ def game_loop():
         # Schwarzer Hintergrund
         screen.fill(BLACK)
 
-        #Spieler Bewegung
-        spieler.steuerung()
+        #Unser Tastatur wird ausgelöst
+        keys = pygame.key.get_pressed()
+        tastatur.execute(keys)
 
         #Ball Bewegung
         ball.update()

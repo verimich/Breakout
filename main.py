@@ -66,9 +66,6 @@ def game_loop():
     
     #my_score Objekt wird erstellt
     my_score = scores.Score(WIDTH/2, HEIGHT-36, 0, highscore)
-
-    
-
     #Observer Pattern HighScore
     my_score.register(observer.HighScoreUeberschritten())
 

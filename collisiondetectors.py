@@ -152,10 +152,7 @@ class CollisionDetector:
                         gamesettings.falling_sprites.remove(sprite)
                         print("HIT GROUND")
                     elif herz_y >= self.spieler.plattform_rect.y and herz_y <= self.spieler.plattform_rect.y + self.spieler.image.get_height() and sprite.herz_rect.x + sprite.image.get_width() >= self.spieler.plattform_rect.x and sprite.herz_rect.x <= self.spieler.plattform_rect.x + self.spieler.image.get_width():
-                        gamesettings.falling_sprites.remove(sprite)
-                        print("HEART+1")
-                        #maximal 6 Herzen
-                    
+                        gamesettings.falling_sprites.remove(sprite)                                         
                         self.spieler.add_heart()
             
         #Leben werden abgezogen und der Ball ändert Position ausgerichtet nach dem Spieler

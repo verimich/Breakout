@@ -97,7 +97,7 @@ def game_loop():
         # Schwarzer Hintergrund
         screen.fill(BLACK)
 
-        #Unser Tastatur wird ausgelöst
+        #Unsere Tastatur wird ausgelöst
         keys = pygame.key.get_pressed()
         tastatur.execute(keys)
 

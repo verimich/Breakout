@@ -15,12 +15,7 @@ class CollisionDetector:
         self.time1 = 0
         self.time2 = 0
 
-
-    def collision(self):        
-        #Musik ersetzen durch Sound
-        #pygame.mixer.music.stop()
-        #pygame.mixer.Sound.play(hit_sound)  
-                                                                                              #Linke Ecke                                                                #Rechte Ecke
+    def collision(self):          
         #Spieler trifft den Ball
         if((self.ball.ball_rect.y + self.ball.image.get_height() >= self.spieler.plattform_rect.y and self.ball.ball_rect.y + self.ball.image.get_height() <= self.spieler.plattform_rect.y + self.spieler.image.get_height()) and (self.ball.ball_rect.x + self.ball.image.get_width() >= self.spieler.plattform_rect.x and  self.ball.ball_rect.x   <= self.spieler.plattform_rect.x + self.spieler.image.get_width() ) and self.ball.sy >= 0):
                 #linke Hälfte von links
@@ -69,19 +64,14 @@ class CollisionDetector:
                
                 #Block wird von unten auf der links Seite getroffen, während er von rechts kommt
                 if((self.ball.sx > 0) and (self.ball.ball_rect.x + self.ball.image.get_width() <= sprite.block_rect.x + sprite.image.get_width()/2) ):
-                    
-                    
                     self.ball.sx *= -1
+
                 #Block wird von unten auf der rechten Seite getroffen, während er von links kommt
                 if((self.ball.sx < 0) and (self.ball.ball_rect.x >= sprite.block_rect.x + sprite.image.get_width()/2) ):
-                    
-
                     self.ball.sx *= -1
                     
-                
                 #offset 1 nach unten
                 self.ball.ball_rect.y += 4
-
                 self.ball.sy *= -1
                 
                 #Block4 mit der Muenze wird getroffen, oder Block2 lässt Herzen fallen
@@ -120,7 +110,6 @@ class CollisionDetector:
                 if sprite.id == 4 or sprite.id == 2:
                     sprite.hit()
 
-        
                 #Alle Blöcke werden zerstört außer Block3 ändert seine ID
                 if(sprite.id == 3):
                     
@@ -131,9 +120,6 @@ class CollisionDetector:
                 if(sprite.id == 3 or sprite.id ==1):
                     pygame.mixer.Sound.play(soundsettings.hit_sound)
 
-
-                
-
             #Fallende Objekte Kollision mit Spieler oder unterem Rand
             for sprite in gamesettings.falling_sprites:
                 #id der Münze
@@ -141,26 +127,19 @@ class CollisionDetector:
                     muenze_y = sprite.muenze_rect.y + sprite.image.get_height()
                     if muenze_y >= gamesettings.HEIGHT:
                         gamesettings.falling_sprites.remove(sprite)
-                        print("HIT GROUND")
                     elif muenze_y >= self.spieler.plattform_rect.y and muenze_y <= self.spieler.plattform_rect.y + self.spieler.image.get_height() and sprite.muenze_rect.x + sprite.image.get_width() >= self.spieler.plattform_rect.x and sprite.muenze_rect.x <= self.spieler.plattform_rect.x + self.spieler.image.get_width():
                         gamesettings.falling_sprites.remove(sprite)
-                        print("SCORE+1")
                         self.my_score.update()
                 elif sprite.id == 6:
                     herz_y = sprite.herz_rect.y + sprite.image.get_height()
                     if herz_y >= gamesettings.HEIGHT:
                         gamesettings.falling_sprites.remove(sprite)
-                        print("HIT GROUND")
                     elif herz_y >= self.spieler.plattform_rect.y and herz_y <= self.spieler.plattform_rect.y + self.spieler.image.get_height() and sprite.herz_rect.x + sprite.image.get_width() >= self.spieler.plattform_rect.x and sprite.herz_rect.x <= self.spieler.plattform_rect.x + self.spieler.image.get_width():
                         gamesettings.falling_sprites.remove(sprite)
-                        print("HEART+1")
-                        #maximal 6 Herzen
-                    
                         self.spieler.add_heart()
             
         #Leben werden abgezogen und der Ball ändert Position ausgerichtet nach dem Spieler
         if(self.ball.ball_rect.y >= gamesettings.HEIGHT - self.ball.image.get_height()):
-            print("REMOVE_HEART()")
             self.spieler.remove_heart()
             #Mitte des Spielers
             self.ball.ball_rect.x = self.spieler.plattform_rect.x + self.spieler.image.get_width() / 2 - self.ball.image.get_width() / 2

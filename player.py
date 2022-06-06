@@ -49,7 +49,6 @@ class Player(ObserverSubject):
     def add_heart(self):
         self.leben += 1
         self.message = "add"
-        print("HEART ADDED in Spieler Klasse")
         self._notify()
     
     def remove_heart(self):

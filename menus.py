@@ -2,16 +2,14 @@ import pygame
 
 import buttons
 import gamesettings
-
 import main
 
 
 
 
-
+#Dieses Menü wird nur am Start aufgerufen. Das MenuEnd wird danach immer wieder aufgerufen.
 class MenuStart:
     def __init__(self):
-        print("init")
         pass
 
     def start(self):
@@ -23,7 +21,6 @@ class MenuStart:
         while run:
 
             gamesettings.screen.fill((192,192,192))
-
             gamesettings.screen.blit(buttonStart.image, buttonStart.button_rect)
             gamesettings.screen.blit(buttonEnd.image, buttonEnd.button_rect)
             pygame.display.flip()

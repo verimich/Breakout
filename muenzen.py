@@ -5,6 +5,7 @@ from abc import ABC, ABCMeta, abstractmethod
 import soundsettings
 import gamesettings
 
+#Fallenden Münzen (remove)
 class Muenze:
     def __init__(self,x,y):
         self.x = x 
@@ -17,7 +18,6 @@ class Muenze:
 
     def create(self):
         #Sound bei Muenzgeneration
-        
         pygame.mixer.Sound.play(soundsettings.muenze_sound)  
         self.image = pygame.image.load(os.path.join(
         gamesettings.game_folder, 'images/coin.png')).convert_alpha() 

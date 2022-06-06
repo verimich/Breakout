@@ -13,7 +13,6 @@ class button:
         self.create()
 
     def create(self):
-        
         self.image = pygame.image.load(os.path.join(
             gamesettings.game_folder, self.pfad)).convert_alpha() 
         self.button_rect = self.image.get_rect(center = (self.x,self.y))

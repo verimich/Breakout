@@ -23,8 +23,8 @@ class HighScore:
         else:
             self.score = "0"
             self.score_rendered = self.score_font.render("Highscore: " + self.score, True, (255,255,255))
+    #Highscore wird überschrieben
     def ueberschreiben(self,newscore):
         with open(self.filename, 'w') as f:
             f.write(str(newscore))
-            print("Überschrieben")
             self.newhighscore_rendered = self.score_font.render("Neuer Highscore: " + str(newscore), True, (0,0,0))

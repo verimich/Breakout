@@ -3,6 +3,7 @@ import os
 import gamesettings
 import soundsettings
 
+#Fallende Herzen Klasse
 class FallendesHerz:
     def __init__(self,x,y):
         self.x = x 

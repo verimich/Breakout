@@ -1,5 +1,4 @@
 from icommandabstract import *
-
 import player
 
 #Bewegung nach links

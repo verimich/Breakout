@@ -3,7 +3,7 @@ import os
 import gamesettings
 import bloecke
 
-#TileMap Klasse
+#TileMap Klasse erstellt die jeweiligen Blöcke
 class Map:
     def __init__(self,filename):
         self.filename = filename

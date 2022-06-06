@@ -1,46 +1,40 @@
-from turtle import width
 import pygame
 import os
-from abc import ABC, ABCMeta, abstractmethod
-import time
 
+#Meine Module
 
-from gamesettings import *
-from soundsettings import *
-from observersubjectabstract import *
-from observerabstract import *
-
-from leben import *
-import observer
-import player
+import gamesettings 
 
 #Command pattern imports
 from tastaturinvoker import *
 from icommandabstract import *
 import icommand
 
-import balls
-
-import maps
-
 #Observer pattern
 import scores
-
+import observer
+from observersubjectabstract import *
+from observerabstract import *
 import highscors
+import leben as myleben
+
 import collisiondetectors
+import player
+import balls
+import maps
 
-
-import starting
+#Startet das Spiel
+import menustart
 
 def game_loop():
-    sprites.clear()
+    gamesettings.sprites.clear()
 
     #Musik spielen
     pygame.mixer.music.play(-1,0.0)
     #Lautstärke Hintergrundmusik
     pygame.mixer.music.set_volume(.6)
 
-    #init spieler
+    #init spieler receiver
     spieler = player.Player()
     #Invoker
     tastatur = Tastatur()
@@ -56,21 +50,16 @@ def game_loop():
     #Observer Pattern registrieren
     spieler.register(observer.UnterMaximalenLeben())
     spieler.register(observer.LebenVerlierenMoeglich())
-    
+
+    #highscore
+    highscore = highscors.HighScore(gamesettings.WIDTH - 200,gamesettings.HEIGHT-36,'highscore/highscore.txt')
+    #my_score Objekt wird erstellt
+    my_score = scores.Score(gamesettings.WIDTH/2, gamesettings.HEIGHT-36, 0, highscore)
+    #Observer Pattern HighScore
+    my_score.register(observer.HighScoreUeberschritten())
 
     #Ball
     ball = balls.Ball()
-
-    #highscore
-    highscore = highscors.HighScore(WIDTH - 200,HEIGHT-36,'highscore/highscore.txt')
-    
-    #my_score Objekt wird erstellt
-    my_score = scores.Score(WIDTH/2, HEIGHT-36, 0, highscore)
-
-    
-
-    #Observer Pattern HighScore
-    my_score.register(observer.HighScoreUeberschritten())
 
 
     #Collision
@@ -93,9 +82,9 @@ def game_loop():
     while running:
 
         #berechnet Zeit zwischen zwei Frames und limitiert diesen
-        dt = clock.tick(FPS)
+        dt = gamesettings.clock.tick(gamesettings.FPS)
         # Schwarzer Hintergrund
-        screen.fill(BLACK)
+        gamesettings.screen.fill(gamesettings.BLACK)
 
         #Unser Tastatur wird ausgelöst
         keys = pygame.key.get_pressed()
@@ -108,33 +97,33 @@ def game_loop():
         collision.collision()
 
         #zeigt Highscore an
-        screen.blit(highscore.score_rendered, (highscore.x,highscore.y))
+        gamesettings.screen.blit(highscore.score_rendered, (highscore.x,highscore.y))
 
         #zeigt Score an
-        screen.blit(my_score.score_rendered, (my_score.x, my_score.y))
+        gamesettings.screen.blit(my_score.score_rendered, (my_score.x, my_score.y))
 
         #Malt die Plattform auf unsere Oberfläche mit den jeweiligen rect Werten Spieler
-        screen.blit(spieler.image, spieler.plattform_rect)    
+        gamesettings.screen.blit(spieler.image, spieler.plattform_rect)    
 
-        screen.blit(ball.image, ball.ball_rect)  
+        gamesettings.screen.blit(ball.image, ball.ball_rect)  
 
         #Blöcke werden gemalt
-        for sprite in sprites:
-            screen.blit(sprite.image,sprite.block_rect)
+        for sprite in gamesettings.sprites:
+            gamesettings.screen.blit(sprite.image,sprite.block_rect)
 
         #Fallende Objekte werden gemalt
-        for sprite in falling_sprites:
+        for sprite in gamesettings.falling_sprites:
             sprite.update()
             #Münze
             if sprite.id == 5:
-                screen.blit(sprite.image,sprite.muenze_rect)
+                gamesettings.screen.blit(sprite.image,sprite.muenze_rect)
             #Herz
             elif sprite.id == 6:
-                screen.blit(sprite.image,sprite.herz_rect)
+                gamesettings.screen.blit(sprite.image,sprite.herz_rect)
 
-        #Leben werden gemalt
-        for leben in spieler.leben_list:
-             screen.blit(leben.image,leben.leben_rect)
+        #Leben werden gemalt unten links
+        for myleben.leben in spieler.leben_list:
+             gamesettings.screen.blit(myleben.leben.image,myleben.leben.leben_rect)
 
         #Display wird geupdatet    
         pygame.display.flip()
@@ -146,11 +135,11 @@ def game_loop():
                 break
         
         #Nächste Level werden geladen
-        if not sprites:
+        if not gamesettings.sprites:
             map_counter += 1
             if map_counter < len(map_liste):
                 map = maps.Map(os.path.join(
-                game_folder,map_liste[map_counter] ))
+                gamesettings.game_folder,map_liste[map_counter] ))
                 #Mitte des Spielers
                 ball.ball_rect.x = spieler.plattform_rect.x + spieler.image.get_width() / 2 - ball.image.get_width() / 2
                 ball.ball_rect.y = spieler.plattform_rect.y - 20
@@ -159,18 +148,15 @@ def game_loop():
             #Alle Level durchgespielt, Spiel ist zu Ende
             else:
                 running = False
-                print(running,"!!!!!!!!!!!!!!!!!")
                 #Am Ende werden alle fallenden Objekte gelöscht.!!!
-                falling_sprites.clear()  
-                starting.menuEnds.start(my_score,highscore)
+                gamesettings.falling_sprites.clear()  
+                menustart.menuEnds.start(my_score,highscore)
 
         #Verloren
         if spieler.verloren:
             running = False
-            falling_sprites.clear()
-            print("überprüfung")
-            print("Highscore: ",int(highscore.score),"score: ",my_score.aktueller_score)
-            starting.menuEnds.start(my_score,highscore)
+            gamesettings.falling_sprites.clear()
+            menustart.menuEnds.start(my_score,highscore)
 
 
             

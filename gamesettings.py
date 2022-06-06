@@ -1,5 +1,4 @@
 import pygame
-import pygame
 import os
 """"
 Hier befinden sich die konstanten Einstellungen.

@@ -74,7 +74,7 @@ def game_loop():
     collision = collisiondetectors.CollisionDetector(ball,spieler, my_score)
 
     #Map Liste
-    map_liste = ['tile/map.txt','tile/map1.txt','tile/map2.txt']
+    map_liste = ['tile/map.txt','tile/map1.txt','tile/map2.txt','tile/map3.txt']
 
     #Blöcke werden erstellt
     map_counter = 0
@@ -89,8 +89,8 @@ def game_loop():
     running = True
     while running:
 
-        #berechnet Zeit zwischen zwei Frames und limitiert diesen
-        dt = gamesettings.clock.tick(gamesettings.FPS)
+        #Max. FPS
+        gamesettings.clock.tick(gamesettings.FPS)
         # Schwarzer Hintergrund
         gamesettings.screen.fill(gamesettings.BLACK)
 

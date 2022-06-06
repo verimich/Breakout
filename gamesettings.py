@@ -10,7 +10,7 @@ clock = pygame.time.Clock()
 TITLE = "Breakout"
 WIDTH = 1200
 HEIGHT = 700
-FPS = 60
+FPS = 70
 
 WHITE = (255, 255, 255)
 BLACK = (0,0,0)

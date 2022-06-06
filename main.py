@@ -61,17 +61,14 @@ def game_loop():
     #Ball
     ball = balls.Ball()
 
-<<<<<<< HEAD
-=======
     #highscore
-    highscore = highscors.HighScore(WIDTH - 200,HEIGHT-36,'highscore/highscore.txt')
+    highscore = highscors.HighScore(gamesettings.WIDTH - 200,gamesettings.HEIGHT-36,'highscore/highscore.txt')
     
     #my_score Objekt wird erstellt
-    my_score = scores.Score(WIDTH/2, HEIGHT-36, 0, highscore)
+    my_score = scores.Score(gamesettings.WIDTH/2, gamesettings.HEIGHT-36, 0, highscore)
     #Observer Pattern HighScore
     my_score.register(observer.HighScoreUeberschritten())
 
->>>>>>> a2931c6420ceea925cd50259d71f423b41050e8a
 
     #Collision
     collision = collisiondetectors.CollisionDetector(ball,spieler, my_score)

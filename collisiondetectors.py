@@ -59,7 +59,7 @@ class CollisionDetector:
         for sprite in gamesettings.sprites:
         
             #Ball trifft Block von unten
-            if self.ball.sy <= 0 and (self.ball.ball_rect.y >= sprite.block_rect.y and self.ball.ball_rect.y <=  sprite.block_rect.y + sprite.image.get_height() ) and (self.ball.ball_rect.x + self.ball.image.get_width() >= sprite.block_rect.x and self.ball.ball_rect.x <= sprite.block_rect.x + sprite.image.get_width()):
+            if self.ball.sy <= 0 and self.ball.ball_rect.colliderect(sprite.block_rect):
                 self.my_score.update()
                
                 #Block wird von unten auf der links Seite getroffen, während er von rechts kommt
@@ -92,7 +92,7 @@ class CollisionDetector:
                 
                
             #Ball trifft Block von oben
-            elif self.ball.sy > 0 and (self.ball.ball_rect.y + self.ball.image.get_height() >= sprite.block_rect.y and self.ball.ball_rect.y <=  sprite.block_rect.y + sprite.image.get_height() ) and (self.ball.ball_rect.x + self.ball.image.get_width() >= sprite.block_rect.x and self.ball.ball_rect.x <= sprite.block_rect.x + sprite.image.get_width()):  
+            elif self.ball.sy > 0 and self.ball.ball_rect.colliderect(sprite.block_rect):  
                 self.my_score.update()
                
                 

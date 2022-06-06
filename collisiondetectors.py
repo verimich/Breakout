@@ -135,7 +135,11 @@ class CollisionDetector:
                     if herz_y >= gamesettings.HEIGHT:
                         gamesettings.falling_sprites.remove(sprite)
                     elif herz_y >= self.spieler.plattform_rect.y and herz_y <= self.spieler.plattform_rect.y + self.spieler.image.get_height() and sprite.herz_rect.x + sprite.image.get_width() >= self.spieler.plattform_rect.x and sprite.herz_rect.x <= self.spieler.plattform_rect.x + self.spieler.image.get_width():
+<<<<<<< HEAD
                         gamesettings.falling_sprites.remove(sprite)
+=======
+                        gamesettings.falling_sprites.remove(sprite)                                         
+>>>>>>> a2931c6420ceea925cd50259d71f423b41050e8a
                         self.spieler.add_heart()
             
         #Leben werden abgezogen und der Ball ändert Position ausgerichtet nach dem Spieler

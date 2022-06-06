@@ -3,6 +3,10 @@ import os
 
 import gamesettings
 
+""""
+Dies ist die Klasse für den Ball. Die Attribute sx und sy geben die Geschwindheit an.
+Im gameloop wird die update Methode ausgeführt
+"""
 class Ball():
     def __init__(self):
         self.image = pygame.image.load(os.path.join(

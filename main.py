@@ -6,7 +6,7 @@ import os
 import gamesettings 
 
 #Command pattern imports
-from tastaturinvoker import *
+import tastaturinvoker 
 from icommandabstract import *
 import icommand
 
@@ -37,7 +37,7 @@ def game_loop():
     #init spieler receiver
     spieler = player.Player()
     #Invoker
-    tastatur = Tastatur()
+    tastatur = tastaturinvoker.Tastatur()
 
     #Kommandos
     move_left = icommand.MoveLeft(spieler)
@@ -108,7 +108,7 @@ def game_loop():
         gamesettings.screen.blit(highscore.score_rendered, (highscore.x,highscore.y))
 
         #zeigt Score an
-        gamesettings.screen.blit(my_score.score_rendered, (my_score.x, my_score.y))
+        gamesettings.screen.blit(my_score.score_rendered, (my_score.x - my_score.text_width/2, my_score.y))
 
         #Malt die Plattform auf unsere Oberfläche mit den jeweiligen rect Werten Spieler
         gamesettings.screen.blit(spieler.image, spieler.plattform_rect)    

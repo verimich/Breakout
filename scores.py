@@ -11,6 +11,7 @@ class Score(ObserverSubject):
         self.x = x
         self.y = y
         self.score_font = pygame.font.Font("freesansbold.ttf",24)
+        self.text_width, self.text_height = self.score_font.size("Score:  ")
         self.score_rendered = self.score_font.render("Score: " + str(self.aktueller_score), True, (255,255,255))
     def update(self):
         self.aktueller_score += 1

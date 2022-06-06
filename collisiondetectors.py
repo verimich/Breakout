@@ -6,15 +6,19 @@ import scores
 import gamesettings
 import soundsettings
 
-
+""""
+Alle Kollisionen werden hier getrackt. 
+Wenn der Spieler den Ball trifft, prallt dieser je nachdem von wo er kam und wo er getroffen hat, ab.
+(Ball fliegt nach links und trifft linke Seite = fliegt nach links. Trifft er die rechte Seite und kommt von links, fliegt er nach rechts. Gleiche Logik für die rechte Seite)
+Sounds werden abgespielt.
+Wenn Blöcke getroffen werden prallt der Ball ähnlich ab.
+Herzen werden abgezogen und der Score erhöht sich.
+"""
 class CollisionDetector:
     def __init__(self,ball: balls.Ball, spieler: player.Player, my_score: scores.Score):
         self.ball = ball 
         self.spieler = spieler
         self.my_score = my_score
-        self.time1 = 0
-        self.time2 = 0
-
     def collision(self):          
         #Spieler trifft den Ball
         if((self.ball.ball_rect.y + self.ball.image.get_height() >= self.spieler.plattform_rect.y and self.ball.ball_rect.y + self.ball.image.get_height() <= self.spieler.plattform_rect.y + self.spieler.image.get_height()) and (self.ball.ball_rect.x + self.ball.image.get_width() >= self.spieler.plattform_rect.x and  self.ball.ball_rect.x   <= self.spieler.plattform_rect.x + self.spieler.image.get_width() ) and self.ball.sy >= 0):

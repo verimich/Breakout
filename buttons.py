@@ -2,7 +2,9 @@ import pygame
 import os
 
 import gamesettings
-
+""""
+Diese Buttons werden im Menü gebraucht.
+"""
 class button:
     def __init__(self,x,y,pfad):
         self.x = x 

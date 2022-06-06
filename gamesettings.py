@@ -1,7 +1,10 @@
 import pygame
 import pygame
 import os
-
+""""
+Hier befinden sich die konstanten Einstellungen.
+Außerdem sind hier die Listen für die Blöcke und fallenden Objekte(Herz,Münzen).
+"""
 #init pygame
 pygame.init()
 clock = pygame.time.Clock()

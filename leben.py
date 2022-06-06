@@ -2,8 +2,10 @@ import pygame
 import os
 
 import gamesettings
-
-#Herzen unten nicht zu verwechseln mit fallenden Herzen, da sie das gleiche Bild haben
+""""
+Diese Herzen sind die Herzen unten links. Nicht verwechseln mit den fallenden Herzen, welche ein Leben hinzufügen.
+Falls das letzt Leben verbraucht wurde, endet das Spiel.
+"""
 class Leben:
     def __init__(self,x,y):
         self.x = x 

@@ -1,5 +1,7 @@
 import menus
-
+""""
+Hier wird startet das erste Menü
+"""
 #Hier werden die Menüs erstellt
 menuStarts = menus.MenuStart()
 menuEnds = menus.MenuEnd()

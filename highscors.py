@@ -2,6 +2,10 @@ import pygame
 import os
 
 import gamesettings
+""""
+Dies ist die Klasse für den Highscore. Dieser wird unten rechts eingeblendet. 
+Falls der Spieler den Highscore übertrifft, kann der Highscore mit der ueberschreiben() Methode überschrieben werden.
+"""
 #Highscore 
 class HighScore:
     def __init__(self,x,y,filename):

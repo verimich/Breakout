@@ -2,7 +2,10 @@ import os
 
 import gamesettings
 import bloecke
-
+""""
+Alle Blöcke werden in der sprites Liste gespeichert. 
+Erläuterungen für die jeweiligen Blöcke findet man in der README.txt, oder im Bloecke Modul.
+"""
 #TileMap Klasse erstellt die jeweiligen Blöcke
 class Map:
     def __init__(self,filename):

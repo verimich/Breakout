@@ -1,6 +1,8 @@
 import pygame
 
-#Hintergrundmusik und Sounds #pygame.mixer.music.stop() falls ausstellfunktion
+""""
+Hier findet man die sound Einstellungen.
+"""
 hit_sound = pygame.mixer.Sound("sounds/Ball_Bounce-Popup_Pixels-172648817.wav")
 heart_sound = pygame.mixer.Sound("sounds/success-1-6297.wav")
 brick_sound = pygame.mixer.Sound("sounds/Large Thump Or Bump-SoundBible.com-395560493.wav")

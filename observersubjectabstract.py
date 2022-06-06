@@ -1,7 +1,9 @@
 import pygame
 from abc import ABC, ABCMeta, abstractmethod
 
-#Observer Pattern OberserverSubject Basisklasse
+""""
+Abstrakte Klasse ObserverSubject
+"""
 class ObserverSubject(metaclass=ABCMeta):
     def __init__(self):
         self._observers = []

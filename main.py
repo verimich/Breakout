@@ -2,9 +2,7 @@ import pygame
 import os
 
 #Meine Module
-
 import gamesettings 
-
 #Command pattern imports
 import tastaturinvoker 
 from icommandabstract import *
@@ -25,6 +23,11 @@ import maps
 
 #Startet das Spiel
 import menustart
+
+""""
+Mit dieser Datei muss das Spiel gestartet werden.
+Dies ist die wichtigste Datei, die das Spiel steuert.
+"""
 
 def game_loop():
     gamesettings.sprites.clear()
@@ -58,10 +61,10 @@ def game_loop():
     #Observer Pattern HighScore
     my_score.register(observer.HighScoreUeberschritten())
 
-    #Ball
+    #Ball wird erstellt
     ball = balls.Ball()
 
-    #highscore
+    #highscore wird erstellt
     highscore = highscors.HighScore(gamesettings.WIDTH - 200,gamesettings.HEIGHT-36,'highscore/highscore.txt')
     
     #my_score Objekt wird erstellt
@@ -70,10 +73,10 @@ def game_loop():
     my_score.register(observer.HighScoreUeberschritten())
 
 
-    #Collision
+    #Collision wird erstellt
     collision = collisiondetectors.CollisionDetector(ball,spieler, my_score)
 
-    #Map Liste
+    #Map Liste wichtig! Hier können alle nötigen Maps hinzugefügt werden!!
     map_liste = ['tile/map.txt','tile/map1.txt','tile/map2.txt','tile/map3.txt']
 
     #Blöcke werden erstellt
@@ -98,10 +101,10 @@ def game_loop():
         keys = pygame.key.get_pressed()
         tastatur.execute(keys)
 
-        #Ball Bewegung
+        #Ball Bewegung aufgerufen
         ball.update()
 
-        #collision
+        #collision aufgerufen
         collision.collision()
 
         #zeigt Highscore an
@@ -136,6 +139,7 @@ def game_loop():
         #Display wird geupdatet    
         pygame.display.flip()
 
+        #Spiel kann geschlossen werden oben rechts X
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False 

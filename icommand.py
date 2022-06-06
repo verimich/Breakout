@@ -1,6 +1,9 @@
 from icommandabstract import *
 import player
 
+""""
+Hier befinden sich die Commands für das CommandPattern.
+"""
 #Bewegung nach links
 class MoveLeft(ICommand):
     def __init__(self,spieler: player.Player):

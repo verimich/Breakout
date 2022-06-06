@@ -1,5 +1,8 @@
 
-
+""""
+Dies ist der Invoker im CommandPattern. Alle Kommandos werden registriert im dictionary.
+Falls die gedrückte Taste vorhanden ist, wird der jeweilige command aufgerufen.
+"""
 #Invoker für Command Pattern
 class Tastatur:
 

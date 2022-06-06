@@ -2,7 +2,11 @@ from observerabstract import *
 import gamesettings 
 import leben 
 
-
+""""
+Die Observer für das Observer Pattern findet man hier. 
+Die ersten beiden Observer beobachten den Spieler.
+Der letzte Observer beobachtet den Score.
+"""
 #Leben hinzufügen Observer
 class UnterMaximalenLeben(Observer):
     def update(self, subject: ObserverSubject,message):

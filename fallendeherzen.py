@@ -3,7 +3,10 @@ import os
 import gamesettings
 import soundsettings
 
-#Fallende Herzen Klasse
+""""
+Dies ist die Klasse der fallenden Herzen, welche in falling_sprites gespiechert wird.
+Die Fallgeschwindkeit für y beträgt 6px und kann angepasst werden.
+"""
 class FallendesHerz:
     def __init__(self,x,y):
         self.x = x 

@@ -6,8 +6,10 @@ import main
 
 
 
-
-#Dieses Menü wird nur am Start aufgerufen. Das MenuEnd wird danach immer wieder aufgerufen.
+""""
+Das MenuStart wird nur am Start aufgerufen. Weiter unten findet man das MenuEnd.
+"""
+#Dieses Menü wird nur am Start aufgerufen.Das MenuEnd wird danach immer wieder aufgerufen.
 class MenuStart:
     def __init__(self):
         pass

@@ -6,6 +6,14 @@ import gamesettings
 import fallendeherzen
 import muenzen
 
+""""
+Es gibt vier verschiedene Block Klassen. 
+Block1 ist der standart Block.
+Wenn Block2 getrofft wird, fällt ein extra Leben. Alle fallenden Objekte werden in der falling_sprites Liste gespeichert.
+Block3 ändert seine ID und Bild zu dem von Block1. Sieht also danach aus wie ein standart block.
+Block4 lässt eine Münze fallen.
+"""
+
 class Block:
     @abstractmethod
     def __init__(self,bx,by):

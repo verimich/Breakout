@@ -4,9 +4,15 @@ import gamesettings
 import leben
 import os
 from observersubjectabstract import *
+""""
+Im Observer Pattern ist dies das ObserverSubject
+Im Command Pattern ist dies der Receiver
 
-#Im Observer Pattern ist dies das ObserverSubject
-#Im Command Pattern ist dies der Receiver
+Der Spieler kann sich nach links und rechts bewegen(Command Pattern)
+Außerdem sind hier die Methoden für das Observer Pattern vorhanden. (register, unregister, notify).
+add_heart und remove_heart rufen jeweils notify auf. _notify ruft die observer.update() Methoden auf.
+"""
+
 class Player(ObserverSubject):
     def __init__(self):
         self._observers = []

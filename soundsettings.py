@@ -2,6 +2,7 @@ import pygame
 
 """"
 Hier findet man die sound Einstellungen.
+Verschiedene Sounds stehen zur Auswahl.
 """
 hit_sound = pygame.mixer.Sound("sounds/Ball_Bounce-Popup_Pixels-172648817.wav")
 heart_sound = pygame.mixer.Sound("sounds/success-1-6297.wav")

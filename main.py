@@ -115,7 +115,7 @@ def game_loop():
 
         gamesettings.screen.blit(ball.image, ball.ball_rect)  
 
-        #Blöcke werden gemalt
+        #Blöcke werden gezeichnet
         for sprite in gamesettings.sprites:
             gamesettings.screen.blit(sprite.image,sprite.block_rect)
 

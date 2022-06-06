@@ -1,7 +1,7 @@
 from observersubjectabstract import *
 import observer
 
-#Unser Score
+#Unser Score wird jedes mal erhöht, wenn der Ball einen Block trifft, oder eine Münze gefangen wird. 
 #Observersubject im Comandpattern
 class Score(ObserverSubject):
     def __init__(self, x, y, aktueller_score, highscore):

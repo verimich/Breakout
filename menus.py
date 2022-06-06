@@ -80,7 +80,6 @@ class MenuEnd:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     position_x,position_y = pygame.mouse.get_pos()
                     if buttonStart.button_rect.collidepoint(position_x,position_y):
-                        print('clicked on image')
                         run = False
                         main.game_loop()
                     

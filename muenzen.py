@@ -8,7 +8,7 @@ import gamesettings
 """"
 Hier befindet sich die Mzenze Klasse, welche eine Münze erzeugt, welche einen extra Punkt geben kann, falls sie die Münze gefangen wird.
 """
-#Fallenden Münzen (remove)
+#Fallenden Münzen
 class Muenze:
     def __init__(self,x,y):
         self.x = x 
